@@ -1,62 +1,124 @@
 # Open-Source AI Lead Generation Platform
 
-An advanced, standalone AI-powered lead generation platform built by Javed Akhtar. 
+An advanced, evidence-led AI sales intelligence platform designed to discover, evaluate, and qualify enterprise leads against technical product specifications.
 
-This platform evaluates market briefs against technical product specifications to automatically discover, score, and verify potential leads using live web research and LLMs. It focuses on turning fragmented market data into grounded, evidence-backed opportunities for technical sales teams.
+This platform automates technical market research using **LangGraph** orchestration, **Gemini with Google Search**, and deterministic qualification engines. It replaces vague AI rankings with verifiable quotes, source citations, hard technical constraint checks, and human decision checkpoints.
 
-## Core Features
+---
 
-- **Automated Web Research**: Discovers and cross-references potential leads using real-time search.
-- **Evidence-Backed Assessments**: Each lead is evaluated against structured product technical specifications (e.g., latency thresholds, compliance grades).
-- **Human-in-the-Loop Qualification**: Generates rich briefings that allow a human to easily review evidence and accept or reject the lead.
-- **Trust Boundaries & Security**: Strict separation between public evidence (untrusted) and internal product data (trusted).
-- **Traceability**: Decisions are tied directly to cited, addressable chunks of information from public domains.
+## 📸 Platform Interface Tour
 
-## Quick Start
+### 1. Market Discovery & Research Briefs
+Enter custom market research prompts or launch curated research plays. Configure target products, regional bounds, and supply-chain roles before execution.
+![Market Discovery](docs/images/01-discover-page.png)
+
+### 2. Opportunity Shortlist & Fit Scoring
+Review prioritized enterprise prospects. Leads are ranked across four software dimensions with transparent evidence coverage metrics and technical gating status.
+![Opportunity Shortlist](docs/images/02-research-shortlist.png)
+
+### 3. Lead Assessment & Grounded Evidence Audit
+Click any lead to inspect verbatim source quotations, live URLs, extraction timestamps, open qualification questions, and deterministic technical gates.
+![Lead Assessment](docs/images/03-lead-scoring-drawer.png)
+
+### 4. Technical Product Knowledge & BM25 Retrieval
+Explore product capabilities, throughput bounds, latency thresholds, and deployment topology, complete with page citations retrieved from technical datasheets.
+![Product Knowledge](docs/images/04-product-knowledge.png)
+
+### 5. LangGraph Engineering & Workflow Inspection
+Gain full visibility into the underlying state machines. Inspect checkpoints, node transitions, token usage, and evaluation assertions in real time.
+![Engineering Visualizer](docs/images/05-engineering-architecture.png)
+
+### 6. Buyer Qualification & Purchasing Authority
+Distinguish technical platform users and architects from genuine budget holders and commercial software license purchasers.
+![Buyer Qualification](docs/images/06-buyer-qualification.png)
+
+### 7. Sales Pipeline & Kanban Workspace
+Track approved leads across pipeline stages (Qualified, Contacted, In Discovery, Closed) with complete audit history and CSV/JSON export.
+![Sales Pipeline](docs/images/07-sales-pipeline.png)
+
+---
+
+## 🚀 Core Features
+
+- **Evidence-Led Research**: Every claim is backed by extracted quotes and traceable public URLs—no hallucinated company metrics.
+- **Enterprise Software Scoring Engine**: Evaluates four balanced dimensions (100 pts total):
+  1. **Workload Scale (20 pts)**: Event throughput, edge device volume, telemetry ingest demand.
+  2. **Technical & Use Case Fit (40 pts)**: Core operational fit (predictive maintenance, defect detection, QA).
+  3. **Domain & Automation Maturity (20 pts)**: Industry sector alignment and existing sensor/automation adoption.
+  4. **Platform Ownership & Buying Authority (20 pts)**: Direct software procurement authority vs. turnkey customer delivery.
+- **Deterministic Technical Gates**: Hard constraint enforcement (e.g. latency guarantees, on-premises isolation) that models cannot bypass.
+- **Stateful Human-in-the-Loop Orchestration**: Built with LangGraph. Research pauses for human review and scope confirmation.
+- **Zero-Trust Knowledge Boundary**: Public web extracts are treated as untrusted hypotheses; internal technical datasheets form the verified ground truth.
+
+---
+
+## 🛠️ Quick Start
 
 ### 1. Prerequisites
 - Python 3.10+
-- Node.js 18+ (for the frontend UI)
-- Gemini API key
+- Node.js 18+
+- Google Gemini API Key
 
 ### 2. Backend Setup
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt # Or use your preferred package manager (e.g., uv)
+pip install -r requirements.txt
 
 cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
+# Add your GEMINI_API_KEY to .env
 ```
 
 ### 3. Frontend Setup
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run build
+cd ..
 ```
 
-### 4. Running the Platform
-From the project root:
+### 4. Run the Application
+From the repository root:
 ```bash
 ./start.sh
 ```
-This will boot up the FastAPI backend and serve the application locally. Navigate to `http://localhost:8040` to explore the workspace.
+Open your browser at **`http://localhost:8040`** to start discovering leads.
 
-## Architecture
+---
 
-The system uses [LangGraph](https://python.langchain.com/v0.1/docs/langgraph/) to orchestrate research tasks and qualification loops. State is persisted in a local SQLite database (`leadgen.db`), allowing research to be paused for human review and resumed cleanly. 
+## 🧪 Testing
 
-The primary components include:
-1. **Engine**: The core graph execution environment for discovering and extracting evidence.
-2. **BuyerEngine**: An optional graph for determining procurement roles.
-3. **Store**: Local SQLite checkpoints and business state.
-4. **React Application**: A front-end interface built with Vite, utilizing polling for real-time state updates.
+Run the automated test suite covering deterministic scoring, graph checkpoints, and API contracts:
+```bash
+pytest
+```
 
-## Extending the Platform
+---
 
-This project includes fictional sample products (e.g., `CloudScale AI` and `DataStream Pro`) in `backend/data/products.json`. To use this for your own use-case, simply replace the product definitions and inject your own PDFs or product spec sheets into the knowledge pipeline.
+## 🏗️ Architecture
 
-## License
+```
+├── backend/
+│   ├── app.py           # FastAPI REST endpoints & static frontend serving
+│   ├── assessment.py    # Deterministic 100-point software scoring & gates
+│   ├── buyers.py        # Purchasing authority qualification engine
+│   ├── domain.py        # Lead data models & criteria definitions
+│   ├── evaluations.py   # Automated rubric contract checks
+│   ├── live.py          # Gemini live web search & extraction graph
+│   ├── store.py         # SQLite persistence & checkpoints
+│   └── workflows.py     # LangGraph state machine definitions
+├── frontend/
+│   ├── src/             # React 18 UI components & design system
+│   ├── dist/            # Compiled static distribution
+│   └── screenshots/     # Interface captures & assets
+├── docs/
+│   └── images/          # High-resolution platform documentation screenshots
+└── scripts/
+    └── capture_ui_screenshots.mjs # Headless CDP screenshot generator
+```
 
-MIT License. Feel free to fork and build upon this platform for your own lead generation initiatives.
+---
+
+## 📄 License
+
+MIT License. Built with ❤️ for technical sales and revenue engineering teams.

@@ -16,7 +16,7 @@ export function EvidenceRecord({record:e,index,active}){
   const quantity=e.quantitative||e.quantity;
   const language={de:'German',en:'English','de-DE':'German','en-GB':'English','en-US':'English'}[e.language]||e.language;
   const dimensions=e.dimensions||(e.dimension?[e.dimension]:[]);
-  const labels={size:'Material opportunity',application:'Application fit',sector:'Sector alignment',position:'Supply-chain role'};
+  const labels={size:'Workload scale',application:'Technical fit',sector:'Automation maturity',position:'Platform ownership'};
   return <article className={`evidence-row ${active?'highlighted':''} ${challenged?'evidence-challenged':''}`} id={evidenceAnchor(e)} tabIndex={-1}>
     <div className="evidence-number">{String(index+1).padStart(2,'0')}</div>
     <div className="evidence-content">

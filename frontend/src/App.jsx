@@ -30,7 +30,7 @@ export default function App(){
     <a className="skip-link" href="#main">Skip to content</a>
     <aside className={`sidebar ${menu?'open':''}`}>
       <a href="/" className="brand" onClick={e=>{e.preventDefault();navigate('/')}}><span className="brand-icon"><i/><i/><i/></span><div><strong>leadgen<span>®</span></strong><small>BY TechNova</small></div></a>
-      <div className="workspace-label"><span className="workspace-avatar">C</span><div>Commercial workspace<small>Materials & solutions</small></div><Icon name="down" size={14}/></div>
+      <div className="workspace-label"><span className="workspace-avatar">C</span><div>Commercial workspace<small>Telemetry & Enterprise AI</small></div><Icon name="down" size={14}/></div>
       <div className="nav-label">WORKSPACE</div>
       <nav aria-label="Main navigation">{links.map(([icon,label,url])=><a key={url} href={url} aria-current={(path===url || url==='/'&&(section==='Research'||section==='Lead assessment'||section==='Buyer comparison'))?'page':undefined} className={(path===url || url==='/'&&(section==='Research'||section==='Lead assessment'||section==='Buyer comparison'))?'active':''} onClick={e=>{e.preventDefault();navigate(url)}}><Icon name={icon}/>{label}{url==='/pipeline'&&data?.stats?.pipeline>0&&<span className="nav-count">{data.stats.pipeline}</span>}</a>)}</nav>
       <div className="nav-label second">UNDER THE HOOD</div>
