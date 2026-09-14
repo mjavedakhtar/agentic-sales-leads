@@ -1,0 +1,21 @@
+%% PROPOSED AWS / The workflow after production hardening
+flowchart LR
+    identity["Approve research scope<br/>Identity and product permissions<br/>Human confirms interpreted scope<br/>Fixed graph stages and clear gates"]
+    job["Persist job + outbox<br/>Database commit before enqueue<br/>Queue carries job and version IDs<br/>Leases and idempotency on execution"]
+    worker["Execute research stages<br/>Retrieve / search / extract / assess<br/>Code calculates scores and gates<br/>Budgeted retries; durable checkpoints"]
+    ready["Persist the shortlist<br/>Evidence, model and policy versions<br/>Release task and queue message<br/>Preserve original assessment"]
+    buyer_job["Optional buyer-check job<br/>Same evidence before new research<br/>Bounded search and role qualification<br/>Separate versioned comparison"]
+    crm["Deliver to SAP C4C<br/>Connector with idempotency key<br/>Reconcile ambiguous responses<br/>Approved, mapped records only"]
+    decision["Decision + CRM outbox<br/>Atomic business transaction<br/>Backend gate and version check<br/>Auditable reviewer identity"]
+    human["Reviewer returns later<br/>Fresh authorization and rationale<br/>Separate resumable review job<br/>No waiting worker task"]
+    refresh["Schedule evidence refresh<br/>Create a new evidence version<br/>Do not silently rewrite old decisions<br/>Re-review material changes"]
+    identity --> job
+    job --> worker
+    worker --> ready
+    ready -->|"Optional"| buyer_job
+    buyer_job --> human
+    ready -->|"Without buyer check"| human
+    human --> decision
+    decision --> crm
+    ready --> refresh
+    refresh --> human

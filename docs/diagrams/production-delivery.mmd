@@ -1,0 +1,14 @@
+%% PROPOSED AWS / Release the workflow and prove it can operate
+flowchart LR
+    source["Version and review<br/>Code, prompts, schema and rubric<br/>Buying rule, models and source policy<br/>Pinned dependencies and IaC<br/>Peer review of changed assumptions"]
+    checks["Build and evaluate<br/>Contract and recovery tests<br/>Expert-labeled fit and buyer evals<br/>Unsupported-claim regression gate<br/>Build and scan container image"]
+    staging["Exercise staging<br/>ECR image -> ECS staging<br/>Isolated secrets and database<br/>SAP sandbox and fault injection<br/>German / English evidence cases"]
+    release["Promote the same artifact<br/>Approval against release criteria<br/>Compatible database migrations<br/>Gradual rollout and rollback<br/>Preserve historical assessments"]
+    observe["Observe actual business outcomes<br/>Trace run, job, evidence, model and reviewer IDs<br/>Queue age, attempts, tokens, latency and errors<br/>Sales acceptance and correction feedback<br/>Unsupported buyer claims and unresolved evidence"]
+    recover["Practice recovery and assign owners<br/>Restore database and evidence; verify RPO / RTO<br/>Retry duplicate jobs and ambiguous CRM writes<br/>Exercise lost responses and conservative budgets<br/>Model outage, poor prompt, quota and key rotation"]
+    source --> checks
+    checks --> staging
+    staging --> release
+    release --> recover
+    recover --> observe
+    observe -->|"Feedback into evaluation"| checks

@@ -1,0 +1,12 @@
+%% DEMO TO PRODUCTION / Human waits, saved decisions and production resume
+flowchart LR
+    wait_now["Persist an interrupt<br/>Scope: confirm_scope in research<br/>Lead: human_decision in qualification<br/>SQLite checkpoint; release execution"]
+    resume_now["Resume the same thread<br/>Command(resume=...)<br/>Backend validates completed research<br/>A hard mismatch prevents approval"]
+    save_now["Save the current decision<br/>Review and note persist by run + lead<br/>Approve also creates local opportunity<br/>Needs research records a decision only"]
+    authorize["Authorize the returning reviewer<br/>Product / account permissions<br/>Current evidence and policy version<br/>Stale decisions require fresh review"]
+    resume_job["Dispatch a durable resume job<br/>New short-lived job and lease<br/>Load the matching saved checkpoint<br/>No long-lived worker for human waits"]
+    commit["Commit decision and consequence<br/>Atomic decision + CRM outbox<br/>Idempotent downstream delivery<br/>Retain review and evidence history"]
+    wait_now --> resume_now
+    resume_now --> save_now
+    authorize --> resume_job
+    resume_job --> commit

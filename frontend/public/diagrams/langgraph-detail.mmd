@@ -1,0 +1,25 @@
+%% IMPLEMENTED / Research graph: the exact code path
+flowchart LR
+    parse_scope["parse_scope (before graph)<br/>Gemini call 1 of 4; no web search<br/>Runs before generating run_id"]
+    START["START"]
+    resume_scope["Human confirms the displayed scope<br/>confirm_scope calls interrupt(...); confirmation resumes that same thread<br/>Command(resume=True); thread_id = run_id; no worker held while waiting"]
+    confirm_scope["confirm_scope<br/>interrupt: scope_confirmation<br/>Resume must be exactly True<br/>Then mark scope confirmed"]
+    retrieve_product["retrieve_product<br/>BM25 over selected-product chunks<br/>Page citations; no model call<br/>Store retrieved_chunks"]
+    discover_candidates["discover_candidates<br/>Gemini call 2: Google Search<br/>Bounded cited-page capture<br/>Store research + grounded sources"]
+    extract_evidence["extract_evidence<br/>Gemini call 3: extract scoped facts<br/>Code checks citations and quantities<br/>Store validated extraction"]
+    assess_fit["assess_fit<br/>Gemini call 4: semantic review<br/>Criterion ratings with evidence IDs<br/>Empty extraction skips model call"]
+    calculate_scores["calculate_scores<br/>Code applies 20 / 40 / 20 / 20<br/>Unknowns create a score range<br/>Coverage differs from completeness"]
+    technical_gate["technical_gate<br/>Code checks sourced requirements<br/>Known mismatch remains blocked<br/>Unknown suitability needs review"]
+    rank_candidates["rank_candidates<br/>Blocked last, then score lower bound<br/>Return the completed shortlist<br/>Runner creates review threads later"]
+    END["END"]
+    parse_scope --> START
+    START --> confirm_scope
+    resume_scope -->|"Resume same checkpoint"| confirm_scope
+    confirm_scope --> retrieve_product
+    retrieve_product --> discover_candidates
+    discover_candidates --> extract_evidence
+    extract_evidence --> assess_fit
+    assess_fit --> calculate_scores
+    calculate_scores --> technical_gate
+    technical_gate --> rank_candidates
+    rank_candidates --> END

@@ -1,0 +1,13 @@
+%% EVOLUTION / What changes on the way to production
+flowchart LR
+    demo["01 / Defensible local demo<br/>One user; two fictional products<br/>Live research and explicit captured replay<br/>LLM rubric, code gates, human decisions<br/>Optional bounded buyer comparison"]
+    pilot["02 / Controlled AWS pilot<br/>Small named Sales cohort<br/>SSO, queues, managed state and audit<br/>Approved search and model contracts<br/>Versioned evidence and buyer decisions"]
+    scale["03 / Wider operation<br/>Useful leads and adoption demonstrated<br/>Freshness and CRM reconciliation<br/>Capacity, on-call and restore drills<br/>Monitored evidence and buyer quality"]
+    proof1["Evidence to leave this stage<br/>Verify citation and workflow safeguards<br/>Expert-label fit and buying responsibilities<br/>Test German / English equivalence<br/>Establish manual research baseline<br/>Record unknowns and technical constraints"]
+    proof2["Evidence to leave this stage<br/>Useful accepted leads per Sales hour<br/>Unsupported buyer claims and missed buyers<br/>Ranking quality and correction rates<br/>Successful restore and retry exercises<br/>SAP sandbox duplicates handled"]
+    proof3["Add complexity conditionally<br/>Hybrid retrieval: demonstrated retrieval gap<br/>More workers: measured queue pressure<br/>Multi-agent roles: proven quality benefit<br/>Multi-region: agreed RTO / RPO<br/>Kubernetes: existing platform requirement"]
+    demo --> pilot
+    pilot --> scale
+    demo --> proof1
+    pilot --> proof2
+    scale --> proof3

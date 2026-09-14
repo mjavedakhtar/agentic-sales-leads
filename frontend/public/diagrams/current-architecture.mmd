@@ -1,0 +1,22 @@
+%% IMPLEMENTED / The architecture on this laptop
+flowchart LR
+    browser["React application<br/>Separate task routes<br/>Polling reads over local HTTP"]
+    api["FastAPI + static UI<br/>Localhost :8040; request validation and application APIs<br/>parse_scope runs before the research graph and run ID"]
+    engine["Engine<br/>Research graph: 8 nodes<br/>Qualification graph: 2 nodes<br/>1 worker; shared graph lock"]
+    buyers["BuyerEngine<br/>Optional buyer graph: 4 nodes<br/>1 separate worker and graph lock<br/>Own queue-admission job lock"]
+    product["Product corpus<br/>Two fictional PDFs<br/>Product-filtered BM25<br/>Page-addressable chunks"]
+    db["SQLite: business state and two checkpoint files<br/>leadgen.db: runs, reviews, pipeline, buyer checks<br/>leadgen.db.checkpoints: research + qualification<br/>leadgen.db.buyer-checkpoints: buyer graph"]
+    config["Local configuration<br/>Ignored .env; server-side key<br/>Browser never receives the key"]
+    gemini["Gemini API<br/>Scope, discovery, extraction, fit<br/>Optional buying-role assessment<br/>Google Search only on search calls"]
+    web["Public websites<br/>Fetch grounded citations only<br/>Public-IP and redirect checks<br/>Captures remain untrusted input"]
+    browser -->|"HTTP"| api
+    api --> engine
+    api --> buyers
+    api -->|"Scope"| gemini
+    engine --> gemini
+    buyers --> gemini
+    engine --> product
+    engine --> db
+    buyers --> db
+    buyers --> web
+    engine --> web

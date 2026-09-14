@@ -1,0 +1,18 @@
+%% IMPLEMENTED / Buyer graph: one bounded research branch
+flowchart LR
+    frozen_input["Button: Check buying responsibility<br/>Copy existing candidates, scope and allowed source captures<br/>Persist a buyer-check record with its own check_id and budget"]
+    bounds["Independent limits<br/>At most 4 model attempts and 1 targeted search pass<br/>360-second execution window checked before uncached calls"]
+    START["START"]
+    assess_existing["assess_existing<br/>LLM assesses five separate buying roles<br/>Code requires applicable original quotes<br/>Freeze initial_candidates for comparison"]
+    targeted_research["targeted_research<br/>One Google-grounded follow-up search<br/>Reserve budget before provider call<br/>Keep new sources marked followup"]
+    assess_followup["assess_followup<br/>LLM assesses original + new evidence<br/>Promotion requires new purchasing proof<br/>At most 2 new buyers; no invented score"]
+    complete["complete<br/>Save comparison, evidence and usage<br/>Unknowns remain visible for review<br/>Scores, decisions and pipeline unchanged"]
+    END["END"]
+    frozen_input --> START
+    START --> assess_existing
+    assess_existing -->|"Questions remain"| targeted_research
+    assess_existing -->|"No questions"| complete
+    targeted_research -->|"New sources"| assess_followup
+    targeted_research -->|"No sources"| complete
+    assess_followup --> complete
+    complete --> END

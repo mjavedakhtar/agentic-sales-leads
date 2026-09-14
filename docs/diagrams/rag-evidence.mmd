@@ -1,0 +1,16 @@
+%% IMPLEMENTED / From source capture to a scored hypothesis
+flowchart LR
+    product["Product evidence<br/>Selected fictional material; BM25<br/>Page-cited, product-filtered PDF chunks<br/>No embeddings or external vector store"]
+    public["Company source evidence<br/>Grounding IDs; captured original text<br/>Separate search-summary provenance<br/>Untrusted content and citation allowlist"]
+    extract["Gemini: extract_evidence<br/>Scoped facts, not commercial scores<br/>Original quote, entity, site and date<br/>Value + unit + original numeric text"]
+    validate["Code: validate_candidate<br/>Allowlisted source and product IDs<br/>Quote occurrence in captured text<br/>Locale-aware number validation<br/>Reject unsupported fact captures"]
+    assess["Gemini: assess_fit<br/>Review every fact against source context<br/>Entailment, negation, entity, contradictions<br/>Anchored 0-5 ratings with fact references<br/>Unknown is null, not a negative score"]
+    score["Code: calculate_scores<br/>Validate judgment and reference contracts<br/>Weights 20 / 40 / 20 / 20<br/>Known subtotal to unresolved upper bound<br/>Coverage and completeness are separate"]
+    gate["Code: technical_gate<br/>Sourced hard requirements can veto fit"]
+    product --> extract
+    public --> extract
+    extract --> validate
+    validate --> assess
+    product -->|"Retrieved context"| assess
+    assess --> score
+    score --> gate

@@ -1,0 +1,17 @@
+%% IMPLEMENTED / Qualification graph: the human decision
+flowchart LR
+    human_resume["Engine.decide validates the action before resuming<br/>Research must be complete; a technical block prevents approval; an existing decision is final<br/>Command(resume={decision, note}); thread_id = review:{run_id}:{lead_id}<br/>No LLM call; no human wait occupies a background worker"]
+    START["START"]
+    human_decision["human_decision<br/>interrupt: lead_qualification<br/>Allowed: approve / reject / needs_research<br/>Resume stores the decision and note"]
+    persist_decision["persist_decision<br/>Store.save_decision(...)<br/>Transactional review + pipeline update<br/>Return saved=True"]
+    END["END"]
+    decision_record["Decision record<br/>Key: run_id + lead_id<br/>Decision, note, recorded timestamp<br/>Reload and restart retain it"]
+    approved["Approve<br/>Create a local pipeline opportunity<br/>Same transaction as review persistence<br/>Idempotent matching resubmission"]
+    other_decisions["Reject or needs research<br/>Save the decision and note<br/>No pipeline entry or automatic research<br/>A new run does not inherit this review"]
+    START --> human_decision
+    human_resume --> human_decision
+    human_decision -->|"Resume"| persist_decision
+    persist_decision --> END
+    persist_decision --> decision_record
+    persist_decision -->|"approve"| approved
+    persist_decision -->|"other decisions"| other_decisions

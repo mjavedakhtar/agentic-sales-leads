@@ -1,0 +1,68 @@
+[
+  {
+    "id": "current-workflow",
+    "title": "The workflow running today",
+    "subtitle": "Fixed research stages, a separate human decision, and an optional buying-responsibility check.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "id": "current-architecture",
+    "title": "The architecture on this laptop",
+    "subtitle": "One FastAPI process, two independent background executors, and three checkpointed graphs.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "id": "langgraph-detail",
+    "title": "Research graph: the exact code path",
+    "subtitle": "backend/workflows.py: Engine.research. Eight custom nodes; fixed edges; one scope interrupt.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "id": "buyer-workflow",
+    "title": "Buyer graph: one bounded research branch",
+    "subtitle": "backend/buyer_workflow.py: BuyerEngine.graph. Separate checkpoint thread; original shortlist stays frozen.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "id": "qualification-graph",
+    "title": "Qualification graph: the human decision",
+    "subtitle": "backend/workflows.py: Engine.qualification. Two custom nodes, one thread per original run and lead.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "id": "rag-evidence",
+    "title": "From source capture to a scored hypothesis",
+    "subtitle": "Extraction, semantic assessment and score calculation have different responsibilities.",
+    "status": "IMPLEMENTED"
+  },
+  {
+    "id": "human-review",
+    "title": "Human waits, saved decisions and production resume",
+    "subtitle": "The demo persists scope and qualification interrupts. Production adds identity, version checks and durable dispatch.",
+    "status": "DEMO TO PRODUCTION"
+  },
+  {
+    "id": "production-workflow",
+    "title": "The workflow after production hardening",
+    "subtitle": "Persist work before dispatch; release resources during human waits; apply the same explicit qualification rules.",
+    "status": "PROPOSED AWS"
+  },
+  {
+    "id": "production-architecture",
+    "title": "A restrained AWS production architecture",
+    "subtitle": "ECS Fargate preserves the Python application. Managed state and durable jobs replace local executors.",
+    "status": "PROPOSED AWS"
+  },
+  {
+    "id": "evolution",
+    "title": "What changes on the way to production",
+    "subtitle": "Keep the controlled workflow. Add operating controls and complexity when measured needs justify them.",
+    "status": "EVOLUTION"
+  },
+  {
+    "id": "production-delivery",
+    "title": "Release the workflow and prove it can operate",
+    "subtitle": "Version the full decision system, evaluate its claims, and exercise recovery before widening access.",
+    "status": "PROPOSED AWS"
+  }
+]

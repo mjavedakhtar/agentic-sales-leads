@@ -1,0 +1,22 @@
+%% PROPOSED AWS / A restrained AWS production architecture
+flowchart LR
+    user["Sales browser<br/>Corporate user / HTTPS"]
+    alb["Internal ALB + OIDC<br/>Corporate network access<br/>Approved identity provider"]
+    api["ECS Fargate API / UI<br/>Private subnets across two AZs<br/>Authorization; job submission<br/>Human decisions; read APIs"]
+    queue["SQS queues + DLQ<br/>Research, buyer, review and CRM<br/>Dispatcher reads DB outbox"]
+    worker["ECS Fargate workers<br/>Leases + LangGraph adapter<br/>Budgeted versioned workflows<br/>Independent scaling"]
+    rds["RDS PostgreSQL<br/>Business / jobs / audit / outbox<br/>Checkpoints / Multi-AZ"]
+    s3["S3 evidence + products<br/>Versioned, permitted objects<br/>BM25 runs in the worker"]
+    search["Approved search / data API<br/>Discovery and content-use rights<br/>Controlled outbound access"]
+    model["Approved model endpoint<br/>Gemini remains external to AWS<br/>Bedrock requires a separate adapter<br/>Evaluate model and prompt changes"]
+    sap["SAP C4C<br/>Connector consumes CRM outbox<br/>Edition, API and mapping to confirm"]
+    user --> alb
+    alb --> api
+    api -->|"Commit job / decision"| rds
+    queue -->|"Receive"| worker
+    rds -->|"Outbox"| queue
+    worker --> rds
+    worker --> s3
+    worker --> search
+    worker --> model
+    worker --> sap
