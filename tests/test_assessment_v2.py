@@ -27,7 +27,7 @@ def fixture():
                                                     unit='assembly packs/year', approximate=False))]
     row = dict(name='Example assemblies', domain='example.com', country='Germany', sector='EV assemblies',
                position='assembly assembler', application='assembly-pack bonding', hypothesis='assembly pack bonding may fit the retrieved product application.',
-               source_ids=['S1'], product_chunk_ids=[CHUNKS[0]['id']], is_material_supplier=False,
+               source_ids=['S1'], product_chunk_ids=[CHUNKS[0]['id']], is_competitor=False,
                geography_match='supported', facts=facts, gaps=['Purchase volume still needs qualification.'],
                next_action='Confirm the material demand and application requirements.')
     source = dict(id='S1', url='https://example.com/assemblies', title='Example assemblies',
@@ -243,7 +243,7 @@ def test_metadata_preserves_rubric_and_structured_judgment_without_mutating_inpu
     assert 'not calibrated' in lead['scoring_policy']['calibration']
 
 
-@pytest.mark.parametrize('kind,value', [('headcount',-25),('headcount',2.5),('production_capacity',-50),('material_demand',-3)])
+@pytest.mark.parametrize('kind,value', [('headcount',-25),('headcount',2.5),('production_capacity',-50),('platform_demand',-3)])
 def test_invalid_count_or_material_quantity_is_not_accepted(kind, value):
     row, sources = fixture()
     quote = f'Example assemblies reports {value} units for this identified production activity.'

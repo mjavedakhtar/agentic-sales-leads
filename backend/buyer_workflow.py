@@ -320,7 +320,7 @@ class BuyerEngine:
         supported = sum(candidate.get('eligible', False) for candidate in state['candidates'])
         return {'status': 'completed', 'current_node': 'complete', 'error': None, 'can_retry': False,
                 'updated_at': now(), 'trace': state['trace'] + [event('complete', 'Buyer comparison ready',
-                    f"{supported} companies qualify under the direct-material-buyer rule. Original scores, technical gates, human decisions and pipeline records are unchanged.")]}
+                    f"{supported} companies qualify under the direct-buyer rule. Original scores, technical gates, human decisions and pipeline records are unchanged.")]}
 
     def execute(self, run_id):
         record = self.store.get_buyer_check(run_id)

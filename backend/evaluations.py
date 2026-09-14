@@ -56,7 +56,7 @@ def _v2_example():
                   quantity=dict(value=50000,value_text='50000',unit='events/sec'))]
     row = CandidateEvidence(name='Example Auto',domain='example.com',country='Germany',sector='Automotive',
                             position='Automotive manufacturer',application='Predictive maintenance',hypothesis='Automated lines fit the retrieved product application.',
-                            source_ids=['S1'],product_chunk_ids=[chunks[0]['id']],is_material_supplier=False,
+                            source_ids=['S1'],product_chunk_ids=[chunks[0]['id']],is_competitor=False,
                             geography_match='supported',facts=facts,next_action='Confirm workload scale and qualification requirements.')
     sources = {'S1':dict(id='S1',url='https://example.com/auto',title='Synthetic contract source',
                          excerpt=activity+' '+capacity,grounded_summary='',source_type='live_public_page',captured_at=None)}

@@ -42,7 +42,7 @@ add('current-workflow', 'The workflow running today',
     node('assess', 970, 210, 270, 154, 'Assess against rubric', 'Gemini checks fact meaning|Four criterion ratings, 0-5|Reasons, citations, unknowns', 'app'),
     node('calculate', 1275, 210, 270, 154, 'Calculate and gate', 'Code applies fixed weights|Score range; evidence support|Known mismatch blocks', 'app'),
     node('shortlist', 885, 475, 660, 130, 'Saved commercial shortlist', 'Rank by score lower bound, with technical blocks last|Coverage and completeness remain separate from fit|Original evidence, scores and later decisions are retained', 'data'),
-    node('buyer', 55, 475, 660, 130, 'Optional: check buying responsibility', 'Assess the same saved evidence before seeking anything new|At most one targeted search, then reassess its evidence|Purchasing, material use and specification are separate', 'app'),
+    node('buyer', 55, 475, 660, 130, 'Optional: check buying responsibility', 'Assess the same saved evidence before seeking anything new|At most one targeted search, then reassess its evidence|Purchasing, software use and specification are separate', 'app'),
     node('comparison', 55, 670, 395, 112, 'Buyer comparison', 'Original evidence / new evidence|Commercial scores stay unchanged', 'data'),
     node('review', 690, 670, 395, 112, 'Human qualification', 'Approve, reject or needs research|A separate review thread per lead', 'human'),
     node('persist', 1150, 670, 395, 112, 'Persist the decision', 'Review + note in SQLite|Only approved leads enter pipeline', 'data')], [
@@ -129,7 +129,7 @@ add('buyer-workflow', 'Buyer graph: one bounded research branch',
     edge('complete', 'END', [(270, 673), (190, 673)])],
     [group(35, 315, 1530, 480, 'BUYER GRAPH: 4 CUSTOM NODES; CONDITIONAL EDGES, NO RESEARCH LOOP', label_x=270)], [
     'Normal path: 1 assessment call, or 3 calls with follow-up. Saved responses support retries; an uncertain search is not repeated.',
-    'A buyer claim needs material, entity, timing and relation support. Buying responsibility does not establish buying intent.'])
+    'A buyer claim needs product match, entity, timing and relation support. Buying responsibility does not establish buying intent.'])
 
 add('qualification-graph', 'Qualification graph: the human decision',
     'backend/workflows.py: Engine.qualification. Two custom nodes, one thread per original run and lead.', 'IMPLEMENTED', [
@@ -154,7 +154,7 @@ add('qualification-graph', 'Qualification graph: the human decision',
 
 add('rag-evidence', 'From source capture to a scored hypothesis',
     'Extraction, semantic assessment and score calculation have different responsibilities.', 'IMPLEMENTED', [
-    node('product', 60, 205, 390, 140, 'Product evidence', 'Selected fictional material; BM25|Page-cited, product-filtered PDF chunks|No embeddings or external vector store', 'data'),
+    node('product', 60, 205, 390, 140, 'Product evidence', 'Selected fictional software product; BM25|Page-cited, product-filtered PDF chunks|No embeddings or external vector store', 'data'),
     node('public', 60, 480, 390, 155, 'Company source evidence', 'Grounding IDs; captured original text|Separate search-summary provenance|Untrusted content and citation allowlist', 'external'),
     node('extract', 565, 205, 415, 140, 'Gemini: extract_evidence', 'Scoped facts, not commercial scores|Original quote, entity, site and date|Value + unit + original numeric text', 'app'),
     node('validate', 1095, 205, 440, 155, 'Code: validate_candidate', 'Allowlisted source and product IDs|Quote occurrence in captured text|Locale-aware number validation|Reject unsupported fact captures', 'app'),
@@ -169,7 +169,7 @@ add('rag-evidence', 'From source capture to a scored hypothesis',
     edge('assess', 'score', [(980, 565), (1095, 565)]),
     edge('score', 'gate', [(1315, 645), (1315, 705)])], notes=[
     'Quote occurrence is not entailment. Semantic support remains an LLM judgment, even when a source quotation is valid.',
-    '100% criterion coverage is not technical approval, a probability of sale, or proof of material purchasing responsibility.'])
+    '100% criterion coverage is not technical approval, a probability of sale, or proof of software purchasing responsibility.'])
 
 add('human-review', 'Human waits, saved decisions and production resume',
     'The demo persists scope and qualification interrupts. Production adds identity, version checks and durable dispatch.', 'DEMO TO PRODUCTION', [
@@ -198,7 +198,7 @@ add('production-workflow', 'The workflow after production hardening',
     node('crm', 60, 635, 330, 120, 'Deliver to SAP C4C', 'Connector with idempotency key|Reconcile ambiguous responses|Approved, mapped records only', 'external'),
     node('decision', 440, 635, 330, 120, 'Decision + CRM outbox', 'Atomic business transaction|Backend gate and version check|Auditable reviewer identity', 'data'),
     node('human', 820, 635, 330, 120, 'Reviewer returns later', 'Fresh authorization and rationale|Separate resumable review job|No waiting worker task', 'human'),
-    node('refresh', 1200, 635, 330, 120, 'Schedule evidence refresh', 'Create a new evidence version|Do not silently rewrite old decisions|Re-review material changes', 'cloud')], [
+    node('refresh', 1200, 635, 330, 120, 'Schedule evidence refresh', 'Create a new evidence version|Do not silently rewrite old decisions|Re-review significant changes', 'cloud')], [
     edge('identity', 'job', [(390, 277), (440, 277)]), edge('job', 'worker', [(770, 277), (820, 277)]),
     edge('worker', 'ready', [(1150, 277), (1200, 277)]),
     edge('ready', 'buyer_job', [(1245, 345), (1245, 390), (985, 390), (985, 425)], 'Optional', (1005, 377)),
@@ -294,7 +294,7 @@ def render(d):
         parts.append('</g>')
     for i, note in enumerate(d['notes']):
         parts.append(text(55, 829 + i * 29, note, 18, '#687084'))
-    parts += [text(55, 886, 'CHEMNOVUS CASE STUDY / FICTIONAL MATERIALS / IMPLEMENTED AND PROPOSED DESIGNS ARE LABELED', 12, '#9991a6'), '</g></svg>']
+    parts += [text(55, 886, 'TECHNOVA CASE STUDY / FICTIONAL SOFTWARE PRODUCTS / IMPLEMENTED AND PROPOSED DESIGNS ARE LABELED', 12, '#9991a6'), '</g></svg>']
     return ''.join(parts)
 
 

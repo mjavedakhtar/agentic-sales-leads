@@ -9,8 +9,6 @@ import re
 DATA = Path(__file__).parent / "data"
 PRODUCTS = json.loads((DATA / "products.json").read_text())
 COMPANIES = json.loads((DATA / "companies.json").read_text())
-if "assemblies-de" in COMPANIES and "batteries-de" not in COMPANIES:
-    COMPANIES["batteries-de"] = COMPANIES["assemblies-de"]
 CRITERIA = [
     {"key": "size", "label": "Workload scale", "weight": 20},
     {"key": "application", "label": "Technical & use case fit", "weight": 40},
@@ -68,7 +66,7 @@ def parse_replay_query(query):
     if words & {'austria','austrian','at'}:countries.add('AT')
     if words & {'switzerland','swiss','ch'}:countries.add('CH')
     if 'dach' in words:countries.update({'DE','AT','CH'})
-    assembly=bool(words & {'assembly','assemblies','plant','plants','factory','factories','pack','packs','cell','cells','module','modules','powertrain','battery','batteries'})
+    assembly=bool(words & {'assembly','assemblies','plant','plants','factory','factories','pack','packs','cell','cells','module','modules','powertrain'})
     electronics=bool(words & {'electronics','electronic','ems','robotics','robot','robots','inverters','inverter','qa','quality','anomaly','heatsink','heatsinks'})
     molding=bool(words & {'molder','molders','moulders','moulder','molding','moulding','spritzguss','injection','iot','telemetry','sensor','sensors'})
     if product_id=='CS-AI' and (assembly or not electronics) and not molding and countries=={'DE'}:
@@ -82,7 +80,6 @@ def parse_replay_query(query):
     common=set("find show me identify search research discover list companies company customers customer prospects potential prospective relevant possible likely manufacturers manufacturer makers maker providers provider firms businesses suppliers supplier producers producer producing produce developed develop developing builds build manufacture manufactures manufacturing assembly assemblers assembler assembling assemblies products product application applications for in across throughout within the region based located of to a an on suitable target targeting use uses using used help please opportunities get shortlist best fit good match and or that which who with predictive analytics maintenance visual defect detection edge telemetry sensor ingestion data cloud software germany german deutschland de austria austrian at switzerland swiss ch dach market markets supply chain partners partner i want would like can you could need looking am please".split())
     per_scope={
         'assemblies-de':set("ev electric vehicle vehicles automotive plant plants factory factories assembly assemblies pack packs cell cells module modules powertrain mobility systems system ai predictive maintenance visual defect detection".split()),
-        'batteries-de':set("ev electric vehicle vehicles automotive plant plants factory factories assembly assemblies pack packs cell cells module modules powertrain mobility systems system ai predictive maintenance visual defect detection".split()),
         'electronics-dach':set("power electronics electronic ems pcb boards board robotics robot robots inverter inverters cooling device devices services service ai quality assurance anomaly detection".split()),
         'molders-de':set("automotive auto industrial iot injection mold molding molder molders mould moulding moulder moulders spritzguss tier under hood coolant thermostat housings housing connectors connector brackets bracket edge telemetry streaming sensor ingestion data high frequency latency".split()),
     }
@@ -94,8 +91,6 @@ def parse_replay_query(query):
 
 
 def choose_scenario(scenario_id=None, query=None):
-    if scenario_id == 'batteries-de':
-        scenario_id = 'assemblies-de'
     selected=next((x for x in SCENARIOS if x['id']==scenario_id),None) if scenario_id else None
     if scenario_id and selected is None:
         raise ValueError("Unknown research scenario. Choose one of the three available capture sets.")

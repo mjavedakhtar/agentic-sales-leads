@@ -237,7 +237,7 @@ def test_controlled_graph_uses_real_evidence_validation_and_rubric_calculation(t
     from backend.assessment import CandidateEvidence, LeadAssessment, calculate_lead, validate_candidate
     monkeypatch.setattr('backend.workflows.calculate_lead',calculate_lead)
     page=('Newly discovered company assembles 20,000 electric vehicle assembly packs each year in France. '
-          'Its module assembly process uses adhesive bonding.')
+          'Its module assembly process uses automated predictive maintenance.')
 
     class EvidenceAdapter(Adapter):
         def extract(self,scope,chunks,research):
@@ -245,16 +245,16 @@ def test_controlled_graph_uses_real_evidence_validation_and_rubric_calculation(t
             row=CandidateEvidence.model_validate({
                 'name':'Newly discovered company','domain':'example.org','country':'France',
                 'sector':'EV assemblies','position':'assembly assembler','application':'assembly-module bonding',
-                'hypothesis':'The reported module-bonding process may fit the retrieved epoxy application.',
+                'hypothesis':'The reported module-assembly process may fit the retrieved predictive maintenance application.',
                 'source_ids':['source-1'],'product_chunk_ids':[chunks[0]['id']],
-                'is_material_supplier':False,'geography_match':'supported',
+                'is_competitor':False,'geography_match':'supported',
                 'facts':[{'id':'F1','dimensions':['company','geography','size','application','sector','position'],
-                          'kind':'production_capacity','claim':'The company reports recurring EV assembly production and module bonding.',
+                          'kind':'production_capacity','claim':'The company reports recurring EV assembly production and module assembly.',
                           'source_id':'source-1','quote':page,'language':'en','entity':'Newly discovered company',
                           'entity_scope':'company','as_of':None,
                           'quantity':{'value':20000,'value_text':'20,000','unit':'packs/year','approximate':False}}],
                 'gaps':['Customer technical requirements need qualification.'],
-                'next_action':'Verify substrates and annual adhesive demand.'})
+                'next_action':'Verify deployment requirements and annual platform demand.'})
             source={'id':'source-1','url':'https://example.org/public','title':'Company operations',
                     'source_type':'live_public_page','excerpt':page,'captured_at':'2026-09-14T10:00:00Z'}
             candidate=validate_candidate(row,scope,chunks,{'source-1':source})
@@ -267,13 +267,13 @@ def test_controlled_graph_uses_real_evidence_validation_and_rubric_calculation(t
             judgment=LeadAssessment.model_validate({
                 'candidate_id':candidate['id'],'eligible':True,
                 'eligibility_reason':'The company operates relevant assembly production in the requested market.',
-                'fact_reviews':[{'fact_id':'F1','status':'supported','reason':'The quoted source supports the company production and bonding claims.'}],
+                'fact_reviews':[{'fact_id':'F1','status':'supported','reason':'The quoted source supports the company production and assembly claims.'}],
                 'criteria':[{'key':key,'rating':rating,'reason':'The company activity supports this anchored rubric judgment.',
                              'fact_ids':['F1'],'product_chunk_ids':[chunks[0]['id']] if key=='application' else []}
                             for key,rating in [('size',4),('application',4),('sector',4),('position',3)]],
-                'summary':'EV assembly production and module bonding create a plausible application to qualify.',
+                'summary':'EV assembly production and module assembly create a plausible application to qualify.',
                 'gaps':['Confirm the buying owner and application conditions.'],
-                'next_action':'Verify substrates and annual adhesive demand.'})
+                'next_action':'Verify deployment requirements and annual platform demand.'})
             return {'assessments':[judgment.model_dump()],'usage':usage(),'metadata':{'model':'test-model'}}
 
     adapter=EvidenceAdapter();engine=Engine(tmp_path/'actual-scoring.db',live_factory=lambda:adapter)

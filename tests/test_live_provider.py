@@ -55,9 +55,9 @@ def candidate():
     ]
     return dict(name='Example assemblies', domain='example.com', country='Germany', sector='EV assemblies',
                 position='assembly assembler', application='assembly-pack bonding',
-                hypothesis='assembly-pack assembly could use the epoxy bonding applications described in the retrieved product specification.',
+                hypothesis='assembly-pack assembly could use the predictive maintenance applications described in the retrieved product specification.',
                 source_ids=['S1'], product_chunk_ids=[CHUNKS[0]['id']],
-                is_material_supplier=False, geography_match='supported',
+                is_competitor=False, geography_match='supported',
                 facts=[dict(id=f'F{i}', dimensions=[dimension], kind=kind, claim=claim, source_id='S1',
                             quote=quote, language='en', entity='Example assemblies', entity_scope='company',
                             **({'quantity': dict(value=250, value_text='250', unit='employees')} if kind=='headcount' else {}))
@@ -221,7 +221,7 @@ def test_unsupported_or_irrelevant_candidates_are_excluded(mutation):
     if mutation == 'unknown_source': data['source_ids'] = ['invented']
     elif mutation == 'unknown_product_chunk': data['product_chunk_ids'] = ['DS-PRO-p1-c1']
     elif mutation == 'fabricated_company': data['name'] = 'Fabricatotron Unlimited'
-    elif mutation == 'supplier': data['is_material_supplier'] = True
+    elif mutation == 'supplier': data['is_competitor'] = True
     elif mutation == 'outside_scope': data['geography_match'] = 'outside_scope'
     else:
         for fact in data['facts']: fact['quote'] = 'This quotation was invented and does not occur on the public page.'

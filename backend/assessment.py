@@ -83,7 +83,7 @@ class TechnicalRequirement(Contract):
 class ExtractedFact(Contract):
     id: str = Field(min_length=1, max_length=80)
     dimensions: list[Literal['company', 'geography', 'size', 'application', 'sector', 'position', 'technical_requirement']] = Field(min_length=1, max_length=7)
-    kind: Literal['activity', 'headcount', 'revenue', 'production_capacity', 'workload_scale', 'material_demand', 'geography', 'buyer_role', 'technical_requirement', 'other']
+    kind: Literal['activity', 'headcount', 'revenue', 'production_capacity', 'workload_scale', 'platform_demand', 'geography', 'buyer_role', 'technical_requirement', 'other']
     claim: str = Field(min_length=1, max_length=650)
     source_id: str = Field(min_length=1, max_length=80)
     quote: str = Field(default='', max_length=1600)
@@ -105,7 +105,7 @@ class CandidateEvidence(Contract):
     hypothesis: str = Field(min_length=10, max_length=850)
     source_ids: list[str] = Field(min_length=1, max_length=8)
     product_chunk_ids: list[str] = Field(min_length=1, max_length=6)
-    is_material_supplier: bool = False
+    is_competitor: bool = False
     geography_match: Literal['supported', 'uncertain', 'outside_scope']
     facts: list[ExtractedFact] = Field(min_length=1, max_length=16)
     gaps: list[str] = Field(default_factory=list, max_length=12)
@@ -202,7 +202,7 @@ not independently verified truth. Invalid quantities invalidate their fact.
     """
     if isinstance(row, CandidateEvidence):
         row = row.model_dump()
-    if row['is_material_supplier'] or row['geography_match'] == 'outside_scope':
+    if row['is_competitor'] or row['geography_match'] == 'outside_scope':
         return None
     refs = [sources[sid] for sid in dict.fromkeys(row['source_ids']) if sid in sources]
     valid_chunks = {c['id']: c for c in chunks if c.get('product_id') == scope['product_id']}
@@ -232,9 +232,9 @@ not independently verified truth. Invalid quantities invalidate their fact.
             issue = f'{fid}: no matching quotation or grounded summary; fact excluded.'
         if not issue and fact.get('quantity') and (not fetched or not quantity_matches(fact['quantity'], quote, fact['language'])):
             issue = f'{fid}: numeric value is not validated against its original quote and locale; fact excluded.'
-        if not issue and fact['kind'] in ('headcount', 'revenue', 'production_capacity', 'workload_scale', 'material_demand') and not fact.get('quantity'):
+        if not issue and fact['kind'] in ('headcount', 'revenue', 'production_capacity', 'workload_scale', 'platform_demand') and not fact.get('quantity'):
             issue = f'{fid}: quantitative fact lacks a scoped numeric value; fact excluded.'
-        if not issue and fact.get('quantity') and fact['kind'] in ('headcount', 'production_capacity', 'workload_scale', 'material_demand'):
+        if not issue and fact.get('quantity') and fact['kind'] in ('headcount', 'production_capacity', 'workload_scale', 'platform_demand'):
             value = Decimal(str(fact['quantity']['value']))
             if value < 0 or (fact['kind'] == 'headcount' and value != value.to_integral_value()):
                 issue = f'{fid}: counts, production capacity and workload scale must be nonnegative; headcount must be a whole number.'
@@ -340,7 +340,7 @@ def calculate_lead(candidate, assessment, scope, chunks, metadata=None):
             rejection = 'Application fit needs a link to retrieved product evidence.'
         elif rule['key'] == 'size' and all(f['kind'] in ('headcount', 'revenue', 'geography') for f in support):
             rejection = 'Headcount, revenue, or location alone does not establish addressable workload scale.'
-        elif rule['key'] == 'size' and rating >= 4 and not any(f['kind'] in ('production_capacity', 'workload_scale', 'material_demand') and f.get('quantity') for f in support):
+        elif rule['key'] == 'size' and rating >= 4 and not any(f['kind'] in ('production_capacity', 'workload_scale', 'platform_demand') and f.get('quantity') for f in support):
             rejection = 'Ratings 4-5 for workload scale need quantified throughput, sensor count, or production volume.'
         if rejection:
             issues.append(rule['key'] + ': ' + rejection)

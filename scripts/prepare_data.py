@@ -59,8 +59,8 @@ for scenario,(file,items) in rows.items():
 (OUT/'companies.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
 products=[]
 for product_id,filename,name,family,description,applications,specs in [
- ("CS-AI","case-study-fde-01-specsheet-CloudScale-ht.pdf","CloudScale AI","Structural adhesive","Two-component epoxy for demanding electronics and EV battery assembly.",["Battery cell-to-module bonding","Module-to-pack bonding","Busbar potting","Power-electronics heat-sink bonding"],[('Operating temperature range','-40 to +150 °C',2),('Flammability','UL 94 V-0',2),('Lap shear strength','28 MPa (Al, 23 °C)',1),('Volume sweet spot','0.5-50 t/year',2)]),
- ("DS-PRO","case-study-fde-01-specsheet-DataStream-pa66-gf30.pdf","DataStream Pro","Engineering polymer","30% glass-fiber reinforced polyamide for injection-molded automotive components.",["Coolant and thermostat housings","Connectors and brackets","Engine mounts","EV busbar supports"],[('Continuous use temperature (RTI)','150 °C',1),('Heat deflection temperature','250 °C (not service temperature)',1),('Flammability','UL 94 HB',2),('Volume sweet spot','20-500 t/year',2)])
+ ("CS-AI","case-study-fde-01-specsheet-CloudScale-ht.pdf","CloudScale AI","Enterprise AI Inference","High-throughput ML inference platform optimized for predictive maintenance and quality assurance in manufacturing.",["Predictive maintenance for EV assembly lines","Visual defect detection on factory lines","Supply chain anomaly detection"],[('Deployment','Cloud / Hybrid',1),('Max API Requests','50,000 RPM',1),('Data Residency','Global Regions (US, EU, APAC)',2)]),
+ ("DS-PRO","case-study-fde-01-specsheet-DataStream-pa66-gf30.pdf","DataStream Pro","Edge Telemetry","Ultra-low latency edge data streaming and ingestion engine for factory floor telemetry.",["High-frequency sensor ingestion for automotive manufacturing","Industrial IoT edge preprocessing","Robotics telemetry aggregation"],[('Max Throughput','1M events/sec',1),('Supported Protocols','MQTT, OPC UA, Kafka',1),('Deployment','On-Premises Edge Only',2)])
 ]:
     source=ROOT.parent/'common'/'specsheets'/filename
     target=OUT/'documents'/filename
