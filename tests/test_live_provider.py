@@ -17,12 +17,14 @@ from backend.live_config import LiveConfig, get_live_status
 
 KEY = 'test-key-do-not-log'
 SCOPE = {'product_id': 'CS-AI', 'product_name': 'CloudScale AI', 'geography': 'Germany',
-         'application': 'assembly-pack assembly', 'sectors': ['EV assemblies'],
-         'positions': ['assembler'], 'additional_constraints': []}
+         'application': 'predictive maintenance', 'sectors': ['EV assemblies'],
+         'positions': ['assembler'], 'buying_roles': ['ot_architect'], 'additional_constraints': []}
 PAGE = ('Example assemblies manufactures assembly packs for electric vehicles in Germany. '
-        'Our assembly team uses bonding in assembly pack manufacturing. '
-        'Example assemblies has 250 employees across its German operations.')
-CHUNKS = retrieve('CS-AI', 'assembly bonding applications operating temperature')
+        'The plant IT team is hiring an OT data engineer for predictive maintenance. '
+        'Example assemblies currently streams MQTT telemetry into an OSIsoft PI historian. '
+        'Example assemblies has 250 employees across its German operations. '
+        'The VP of Operations owns platform selection for the German assembly site.')
+CHUNKS = retrieve('CS-AI', 'predictive maintenance defect detection latency')
 
 
 def response(text, *, grounding=None, finish='STOP'):
@@ -44,25 +46,25 @@ def candidate():
     facts = [
         ('company', 'activity', 'Example assemblies makes assembly packs.',
          'Example assemblies manufactures assembly packs for electric vehicles in Germany.'),
-        ('application', 'activity', 'The company uses bonding in assembly pack assembly.',
-         'Our assembly team uses bonding in assembly pack manufacturing.'),
-        ('sector', 'activity', 'The company serves electric vehicles.',
-         'Example assemblies manufactures assembly packs for electric vehicles in Germany.'),
-        ('position', 'buyer_role', 'The company assembles assembly packs.',
-         'Our assembly team uses bonding in assembly pack manufacturing.'),
+        ('application', 'installed_stack', 'The company streams MQTT telemetry into OSIsoft PI.',
+         'Example assemblies currently streams MQTT telemetry into an OSIsoft PI historian.'),
+        ('sector', 'intent_signal', 'The plant is hiring an OT data engineer.',
+         'The plant IT team is hiring an OT data engineer for predictive maintenance.'),
+        ('position', 'buying_committee', 'The VP of Operations owns platform selection.',
+         'The VP of Operations owns platform selection for the German assembly site.'),
         ('size', 'headcount', 'The company reports 250 employees.',
          'Example assemblies has 250 employees across its German operations.'),
     ]
     return dict(name='Example assemblies', domain='example.com', country='Germany', sector='EV assemblies',
-                position='assembly assembler', application='assembly-pack bonding',
-                hypothesis='assembly-pack assembly could use the predictive maintenance applications described in the retrieved product specification.',
+                position='plant operator', application='predictive maintenance',
+                hypothesis='Assembly operations could use the predictive maintenance applications described in the retrieved product specification.',
                 source_ids=['S1'], product_chunk_ids=[CHUNKS[0]['id']],
                 is_competitor=False, geography_match='supported',
                 facts=[dict(id=f'F{i}', dimensions=[dimension], kind=kind, claim=claim, source_id='S1',
                             quote=quote, language='en', entity='Example assemblies', entity_scope='company',
                             **({'quantity': dict(value=250, value_text='250', unit='employees')} if kind=='headcount' else {}))
                        for i, (dimension, kind, claim, quote) in enumerate(facts, start=1)],
-                gaps=['Purchasing owner unknown'], next_action='Confirm technical requirements and material demand.')
+                gaps=['Purchasing owner unknown'], next_action='Confirm technical requirements, stack and named buying owner.')
 
 
 def assessment(candidate):
@@ -75,8 +77,8 @@ def assessment(candidate):
                 criteria=[dict(key=key, rating=rating, reason='Accepted company facts support the specified rubric anchor.',
                                fact_ids=refs, product_chunk_ids=candidate['product_chunk_ids'] if key=='application' else [])
                           for key, rating, refs in [('size',3,['F2','F5']),('application',4,['F2']),
-                                                    ('sector',4,['F3']),('position',3,['F4'])]],
-                summary='The relevant manufacturing activity supports a preliminary material opportunity.',
+                                                    ('sector',4,['F3']),('position',5,['F4'])]],
+                summary='The relevant manufacturing activity supports a preliminary software opportunity.',
                 gaps=['Demand remains unconfirmed'], next_action='Confirm customer requirements and buying ownership.')
 
 
@@ -189,7 +191,7 @@ def test_rag_extraction_and_assessment_use_distinct_schemas_then_code_scores():
     assert len(requests) == 2 and result['usage']['model_calls'] == 1
     assert 'leads' not in result  # Provider returns judgments; graph code calculates scores.
     lead = calculate_lead(extracted['candidates'][0], result['assessments'][0], SCOPE, CHUNKS)
-    assert lead['score'] == 72 and lead['coverage'] == 100
+    assert lead['score'] == 80 and lead['coverage'] == 100
     assert lead['score'] == sum(c['score'] for c in lead['criteria'])
     assert lead['gate']['status'] == 'review'
     assert lead['review'] is None and lead['synthetic'] is False
@@ -209,7 +211,7 @@ def test_grounded_summaries_stay_inferred_and_separate_from_fetched_coverage():
     source = research()
     source['sources'][0].update(excerpt='', source_type='grounded_search_summary')
     lead = assess_data(data, source)
-    assert lead['score'] == 60 and lead['coverage'] == 0
+    assert lead['score'] == 68 and lead['coverage'] == 0
     assert lead['assessment_completeness'] == 75
     assert next(c for c in lead['criteria'] if c['key'] == 'size')['score'] is None
     assert all(e['provenance'] == 'inferred' and e['quote'] == '' for e in lead['evidence'] if e['source_type'] == 'grounded_search_summary')

@@ -4,11 +4,11 @@
 
 Each company record contains the exact selected excerpt, original capture timestamp, original seed filename and SHA-256 of the original saved HTML. `source_capture.page_text` retains the saved source text for local verification. HTML entities are decoded and em dash punctuation is normalized to a standard hyphen. Source statements remain company self-descriptions, not independent verification.
 
-Application suitability is an authored research hypothesis. Imported model `quality` flags are not used. Original search snippets are not silently promoted to observed company facts. Geography explicitly marked as research scope is not supported by the excerpt itself. Schröder + Heidler has an additional self-reported structured-metadata headcount of at least 115 employees. This is not annual polymer demand.
+Application suitability is an authored research hypothesis. Imported model `quality` flags are not used. Original search snippets are not silently promoted to observed company facts. Geography explicitly marked as research scope is not supported by the excerpt itself. Schröder + Heidler has an additional self-reported structured-metadata headcount of at least 115 employees. This is not telemetry volume, license demand, or in-market intent.
 
 `products.json` contains page-addressable chunks extracted with pypdf from the two provided fictional product PDFs. `documents/` contains unchanged copies of those PDFs. Product facts, compliance and commercial volume ranges are fictional case-study data, unrelated to any real product.
 
-The V-0 housing request is an authored synthetic policy example in `backend/domain.py`. It is not attributed to any real company. Its commercial score remains the sum of its four criterion contributions, while the independent hard technical gate excludes it from prioritized eligible leads and prevents approval.
+The illustrative cloud-only request is an authored synthetic policy example in `backend/domain.py`. It is not attributed to any real company. Its commercial score remains the sum of its four criterion contributions, while the independent hard technical gate excludes it from prioritized eligible leads and prevents approval.
 
 `scripts/prepare_data.py` reproducibly builds these artifacts from the local interview materials. Runtime uses only files in this folder; it does not import or execute sibling application code.
 

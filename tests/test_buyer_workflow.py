@@ -37,7 +37,7 @@ def policy_adapters(monkeypatch):
                 'candidates': deepcopy(run['leads']), 'sources': [{'id': 'S1', 'phase': 'saved'}]}
 
     def questions(results):
-        return [{'candidate_id': item['id'], 'company': item['name'], 'question': 'Who purchases PA66?'}
+        return [{'candidate_id': item['id'], 'company': item['name'], 'question': 'Who licenses the platform?'}
                 for item in results if item['buyer_status'] == 'unclear']
 
     monkeypatch.setattr('backend.buyer_workflow.prepare_comparison', prepare)
@@ -83,7 +83,7 @@ class Adapter:
     def research_buyers(self, scope, candidates, sources, questions):
         self.calls.append(('search', deepcopy(scope), deepcopy(candidates), deepcopy(questions)))
         self.fail_if_requested('search')
-        return {'sources': [{'id': 'F1', 'phase': 'followup'}], 'queries': ['Company One PA66 procurement'],
+        return {'sources': [{'id': 'F1', 'phase': 'followup'}], 'queries': ['Company One software license purchasing'],
                 'search_entry_point': '', 'usage': usage(True)}
 
     def close(self):

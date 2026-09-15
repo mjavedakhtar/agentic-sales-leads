@@ -148,13 +148,13 @@ try {
   const originalScores=await evaluate('[...document.querySelectorAll(".buyer-original-score strong")].map(e=>e.textContent)');
   await overflow('Buyer comparison desktop');
   await screenshot('buyers-initial-desktop',true);
-  check(await evaluate('document.querySelectorAll(".buyer-filters button")[4].querySelector("span").textContent==="1"'),'Initial unclear count includes the known material user with unknown procurement');
+  check(await evaluate('document.querySelectorAll(".buyer-filters button")[4].querySelector("span").textContent==="1"'),'Initial unclear count includes the known platform user with unknown procurement');
   await click(bySelector('.buyer-filters button',4));
   await waitFor('document.querySelectorAll(".buyer-card").length===1','unknown procurement filter');
   check(await evaluate('document.querySelector(".buyer-company h3").textContent==="Elm Plastics"&&!document.querySelector(".buyer-results").textContent.includes("Delta Components")'),'Unclear filter shows Elm and excludes the supported purchaser');
   await click(bySelector('.buyer-filters button',2));
-  await waitFor('document.querySelectorAll(".buyer-card").length===3','material users and specifiers filter');
-  check(await evaluate('document.querySelector(".buyer-results").textContent.includes("Elm Plastics")'),'A company can be a known material user while its purchasing responsibility remains unclear');
+  await waitFor('document.querySelectorAll(".buyer-card").length===3','platform users and specifiers filter');
+  check(await evaluate('document.querySelector(".buyer-results").textContent.includes("Elm Plastics")'),'A company can be a known platform user while its purchasing responsibility remains unclear');
 
   await click(bySelector('.buyer-filters button',1));
   check(await evaluate('document.querySelectorAll(".buyer-card").length===1&&document.querySelector(".buyer-company h3").textContent==="Delta Components"'),'Supported-buyer filter selects only the evidenced purchaser');
@@ -163,8 +163,8 @@ try {
   check(JSON.stringify(await evaluate('[...document.querySelectorAll(".buyer-original-score strong")].map(e=>e.textContent)'))===JSON.stringify(originalScores),'Commercial scores stay unchanged across evidence views');
   await click(bySelector('.buyer-detail summary',4));
   check(await evaluate('document.querySelectorAll(".buyer-detail")[4].open&&document.querySelectorAll(".buyer-detail")[4].textContent.includes("Evidence added during follow-up")'),'Added evidence is separate from original evidence');
-  check(await evaluate('document.querySelectorAll(".buyer-detail")[4].textContent.includes("Einkauf beschafft PA66-Compounds")'),'Original German evidence is visible');
-  check(await evaluate('document.querySelectorAll(".buyer-detail")[4].querySelectorAll(".buyer-role").length===5'),'Material use, specification, procurement, components and customer-supplied roles are separate');
+  check(await evaluate('document.querySelectorAll(".buyer-detail")[4].textContent.includes("Einkauf lizenziert die Edge-Telemetry-Plattform")'),'Original German evidence is visible');
+  check(await evaluate('document.querySelectorAll(".buyer-detail")[4].querySelectorAll(".buyer-role").length===5'),'Platform use, specification, procurement, turnkey and customer-mandated roles are separate');
   check(await evaluate('[...document.querySelectorAll(".buyer-role-evidence a")].every(a=>document.getElementById(a.hash.slice(1)))'),'All responsibility evidence anchors resolve');
   check(await evaluate('document.querySelectorAll(".buyer-evidence-meta a").length===0'),'Fictional quotations do not masquerade as real source links');
   await screenshot('buyers-followup-desktop',true);
@@ -179,7 +179,7 @@ try {
   await overflow('Buyer comparison mobile');
   await screenshot('buyers-followup-mobile',true);
   await click(bySelector('.buyer-detail summary',1));
-  check(await evaluate('document.querySelectorAll(".buyer-detail")[1].textContent.includes("Customers supply and own the resin")'),'Customer-supplied material caveat remains visible');
+  check(await evaluate('document.querySelectorAll(".buyer-detail")[1].textContent.includes("OEM customer licenses and supplies the platform")'),'Customer-mandated software caveat remains visible');
   await overflow('Expanded buyer evidence mobile');
   await screenshot('buyers-expanded-mobile',true);
   const fixture=await (await fetch(base+'/api/buyer-checks/example')).json();

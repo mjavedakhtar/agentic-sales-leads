@@ -8,7 +8,7 @@ flowchart LR
     crm["Deliver to SAP C4C<br/>Connector with idempotency key<br/>Reconcile ambiguous responses<br/>Approved, mapped records only"]
     decision["Decision + CRM outbox<br/>Atomic business transaction<br/>Backend gate and version check<br/>Auditable reviewer identity"]
     human["Reviewer returns later<br/>Fresh authorization and rationale<br/>Separate resumable review job<br/>No waiting worker task"]
-    refresh["Schedule evidence refresh<br/>Create a new evidence version<br/>Do not silently rewrite old decisions<br/>Re-review material changes"]
+    refresh["Schedule evidence refresh<br/>Create a new evidence version<br/>Do not silently rewrite old decisions<br/>Re-review significant changes"]
     identity --> job
     job --> worker
     worker --> ready

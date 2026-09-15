@@ -135,7 +135,7 @@ class Engine:
 
     def discover_node(self,state):
         if state.get('mode')=='live':
-            start=perf_counter();self.progress(state,'discover_candidates','Search the public web with Gemini')
+            start=perf_counter();self.progress(state,'discover_candidates','Search companies, jobs, RFPs and stack evidence')
             result=self.live_call('discover',state['scope'],state['retrieved_chunks'],prior_usage=state.get('usage'))
             return {'live_research':result,'sources':result.get('sources',[]),'search_queries':result.get('search_queries',[]),'search_entry_point':result.get('search_entry_point',''),
                     'usage':add_usage(state.get('usage'),result.get('usage')),

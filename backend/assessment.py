@@ -30,34 +30,34 @@ RUBRIC = [
         'Quantified relevant production throughput, high sensor counts, or multiple automated lines support a substantial addressable opportunity.',
         'Quantified high-throughput telemetry (>10k events/sec), plant-wide automated QA, or multi-site deployment establish a strong enterprise opportunity.'
     ]},
-    {'key': 'application', 'label': 'Technical & use case fit', 'weight': 40, 'anchors': [
+    {'key': 'application', 'label': 'Technical & stack fit', 'weight': 40, 'anchors': [
         'Evidence establishes that the activity has no relevant operational use case for this software product.',
         'A remote possible application requires several unsupported assumptions about their technology architecture.',
-        'The source establishes generic plant automation or digital manufacturing but no specific telemetry or predictive maintenance use case.',
-        'The company operates relevant automated lines; real-time sensor ingestion or visual defect detection is inferred.',
-        'The source explicitly establishes a target software use case (e.g. predictive maintenance, edge sensor streaming, defect inspection), supported by relevant product capabilities.',
-        'Explicit application, streaming protocol (MQTT/Kafka/OPC UA), latency tolerance, or deployment environment closely match the product specifications.'
+        'The source establishes generic plant automation or digital manufacturing but no specific telemetry, inspection, or incumbent-stack evidence.',
+        'The company operates relevant automated lines; real-time sensor ingestion, visual defect detection, or a displaceable historian/IIoT stack is inferred.',
+        'The source explicitly establishes a target software use case (predictive maintenance, edge streaming, defect inspection) and/or names a relevant incumbent stack.',
+        'Explicit application, protocol (MQTT/Kafka/OPC UA), latency, deployment topology, or named incumbent (PI, AWS IoT, Splunk) closely match the product specifications.'
     ]},
-    {'key': 'sector', 'label': 'Domain & automation maturity', 'weight': 20, 'anchors': [
-        'The evidenced operating business is outside target industrial manufacturing or smart-factory sectors.',
-        'Only a distant connection to industrial technology or automated operations is established.',
-        'The broad industry is relevant but its automation maturity and digital factory adoption are uncertain.',
-        'A relevant target manufacturing segment is one evidenced part of a diversified business.',
-        'An operating manufacturing business directly deploys automated assembly or sensor-driven production.',
-        'The relevant operating business specializes in high-throughput discrete manufacturing with active smart-factory/Industry 4.0 programs.'
+    {'key': 'sector', 'label': 'In-market intent', 'weight': 20, 'anchors': [
+        'Evidence establishes no current hiring, tender, digital program, or other timed reason to buy.',
+        'Only a distant or stale connection to a buying process is established.',
+        'The industry is relevant, but there is no job post, RFP, transformation program, or event signal in-period.',
+        'A digital-factory, Industry 4.0, or OT modernization program is evidenced; active procurement is still unconfirmed.',
+        'A current job posting, public RFP/tender, or named in-period buying program supports that the account is in-market.',
+        'Quantified or dated buying-process evidence (open RFP, budgeted program, multiple relevant open roles) establishes strong in-market intent.'
     ]},
-    {'key': 'position', 'label': 'Platform ownership & buying role', 'weight': 20, 'anchors': [
+    {'key': 'position', 'label': 'Buying committee & commercial motion', 'weight': 20, 'anchors': [
         'The evidenced role neither deploys, specifies, nor procures industrial software or OT infrastructure.',
         'The role has only a remote or indirect connection to software and technology platform selection.',
         'The company operates relevant production equipment, but OT/IT software responsibility is unclear or outsourced.',
-        'The company operates the relevant factory floor; internal software platform purchasing authority is unconfirmed.',
-        'Evidence establishes that the relevant engineering, automation, or plant IT unit specifies or deploys industrial software.',
-        'Evidence establishes direct platform architecture specification or commercial software procurement authority.'
+        'The company operates the relevant factory floor; a named software buying owner remains unconfirmed.',
+        'Evidence names an OT architect, plant IT, VP Operations, or similar role that specifies or deploys industrial software.',
+        'Evidence establishes direct platform-architecture specification or commercial software procurement authority for this category.'
     ]},
 ]
 POLICY = {
     'version': POLICY_VERSION, 'label': 'Demo rubric v2', 'rating_scale': [0, 5],
-    'calibration': 'Authored demo rubric; not calibrated with Sales or a software systems expert.',
+    'calibration': 'Authored demo rubric for industrial software ICP plus intent; not calibrated with Sales or a software systems expert.',
     'formula': 'Criterion points = weight * rating / 5. Unknown ratings have no point value.',
     'unknowns': 'Show known-point subtotal to subtotal plus unresolved weights. Never normalize over only known criteria.',
     'criteria': RUBRIC,
@@ -83,7 +83,7 @@ class TechnicalRequirement(Contract):
 class ExtractedFact(Contract):
     id: str = Field(min_length=1, max_length=80)
     dimensions: list[Literal['company', 'geography', 'size', 'application', 'sector', 'position', 'technical_requirement']] = Field(min_length=1, max_length=7)
-    kind: Literal['activity', 'headcount', 'revenue', 'production_capacity', 'workload_scale', 'platform_demand', 'geography', 'buyer_role', 'technical_requirement', 'other']
+    kind: Literal['activity', 'headcount', 'revenue', 'production_capacity', 'workload_scale', 'platform_demand', 'geography', 'buyer_role', 'technical_requirement', 'installed_stack', 'intent_signal', 'buying_committee', 'other']
     claim: str = Field(min_length=1, max_length=650)
     source_id: str = Field(min_length=1, max_length=80)
     quote: str = Field(default='', max_length=1600)
@@ -342,6 +342,10 @@ def calculate_lead(candidate, assessment, scope, chunks, metadata=None):
             rejection = 'Headcount, revenue, or location alone does not establish addressable workload scale.'
         elif rule['key'] == 'size' and rating >= 4 and not any(f['kind'] in ('production_capacity', 'workload_scale', 'platform_demand') and f.get('quantity') for f in support):
             rejection = 'Ratings 4-5 for workload scale need quantified throughput, sensor count, or production volume.'
+        elif rule['key'] == 'sector' and rating >= 4 and not any(f['kind'] == 'intent_signal' for f in support):
+            rejection = 'Ratings 4-5 for in-market intent need a job posting, RFP, digital program, trade-show, or similar timed buying signal.'
+        elif rule['key'] == 'position' and rating >= 4 and not any(f['kind'] in ('buyer_role', 'buying_committee') for f in support):
+            rejection = 'Ratings 4-5 for buying committee need a named role or evidenced commercial motion, not a company label alone.'
         if rejection:
             issues.append(rule['key'] + ': ' + rejection)
             criteria.append(_unknown(rule, rejection, gaps + [reason]))
@@ -366,7 +370,7 @@ def calculate_lead(candidate, assessment, scope, chunks, metadata=None):
                              'title': chunk.get('title', 'Product specification'), 'captured_at': None, 'source_type': 'product_pdf'})
     gaps = candidate.get('gaps', []) + data.get('gaps', []) + [g for c in criteria for g in c['gaps']]
     gaps += [f"{f['id']}: {f['support_reason']}" for f in facts.values() if f['support_status'] != 'supported']
-    gaps += ['Complete customer technical requirements and application testing', 'Telemetry throughput and software purchasing authority require qualification unless explicitly sourced.']
+    gaps += ['Complete customer technical requirements and application testing', 'Telemetry throughput, current stack/incumbent, named buying owner, and in-market intent (job post, RFP, or program) require qualification unless explicitly sourced.']
     if candidate.get('geography_match') == 'uncertain':
         gaps.append('Requested geography remains unconfirmed.')
     lead = {**{k: candidate[k] for k in ('id', 'name', 'domain', 'country', 'sector', 'position', 'application')},

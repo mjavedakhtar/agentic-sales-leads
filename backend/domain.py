@@ -11,14 +11,14 @@ PRODUCTS = json.loads((DATA / "products.json").read_text())
 COMPANIES = json.loads((DATA / "companies.json").read_text())
 CRITERIA = [
     {"key": "size", "label": "Workload scale", "weight": 20},
-    {"key": "application", "label": "Technical & use case fit", "weight": 40},
-    {"key": "sector", "label": "Domain & automation maturity", "weight": 20},
-    {"key": "position", "label": "Platform ownership & buying role", "weight": 20},
+    {"key": "application", "label": "Technical & stack fit", "weight": 40},
+    {"key": "sector", "label": "In-market intent", "weight": 20},
+    {"key": "position", "label": "Buying committee & commercial motion", "weight": 20},
 ]
 SCENARIOS = [
-    dict(id="assemblies-de", title="Automotive Assembly in Germany", description="Find the companies running large-scale assembly, then qualify the predictive maintenance opportunity.", query="Find German automotive assembly plants for CloudScale AI predictive maintenance.", product_id="CS-AI", geography="Germany", sector="Automotive", application="Predictive maintenance and visual defect detection", sectors=["Automotive", "Assembly"], positions=["Plant operators", "System manufacturers"]),
-    dict(id="electronics-dach", title="Robotics and QA across DACH", description="Explore automated quality assurance at robotics manufacturers.", query="Find robotics and automation companies in DACH for CloudScale AI.", product_id="CS-AI", geography="Germany, Austria and Switzerland", sector="Robotics", application="Automated quality assurance and anomaly detection", sectors=["Robotics", "Automation manufacturing"], positions=["OEM", "System Integrator", "Component manufacturer"]),
-    dict(id="molders-de", title="Industrial IoT in Germany", description="Match the right edge telemetry deployment and expose a hard deployment mismatch.", query="Find German industrial IoT manufacturers for DataStream Pro.", product_id="DS-PRO", geography="Germany", sector="Industrial", application="High-frequency sensor ingestion and edge telemetry", sectors=["Industrial", "Smart manufacturing"], positions=["Plant operator", "Tier 1", "Tier 2"]),
+    dict(id="assemblies-de", title="Automotive Assembly in Germany", description="Find assembly plants that look like CloudScale ICP, then look for hiring, programs, and who licenses the platform.", query="Find German automotive assembly plants for CloudScale AI predictive maintenance.", product_id="CS-AI", geography="Germany", sector="Automotive", application="Predictive maintenance and visual defect detection", sectors=["Automotive", "Assembly"], positions=["Plant operators", "System integrators"]),
+    dict(id="electronics-dach", title="Robotics and QA across DACH", description="Find robotics manufacturers, then qualify stack fit, in-market intent, and buying motion.", query="Find robotics and automation companies in DACH for CloudScale AI.", product_id="CS-AI", geography="Germany, Austria and Switzerland", sector="Robotics", application="Automated quality assurance and anomaly detection", sectors=["Robotics", "Automation manufacturing"], positions=["OEM", "System Integrator", "Plant operator"]),
+    dict(id="molders-de", title="Industrial IoT in Germany", description="Match edge telemetry ICP, then expose hard deployment mismatch and who actually licenses the platform.", query="Find German industrial IoT manufacturers for DataStream Pro.", product_id="DS-PRO", geography="Germany", sector="Industrial", application="High-frequency sensor ingestion and edge telemetry", sectors=["Industrial", "Smart manufacturing"], positions=["Plant operator", "System Integrator", "Tier 1"]),
 ]
 DISCLOSURE = "Live mode uses Gemini and public web research. Captured replay uses saved public-page snapshots without model calls. Company suitability is a research hypothesis. Product specifications are fictional."
 
@@ -35,7 +35,7 @@ def scope_for(scenario):
         "limitations": [
             "Search and extraction replay a fixed, curated capture set, not an exhaustive market scan.",
             "Saved metadata is a company claim, not independent verification. Geography marked 'research scope' is not verified by the quoted page.",
-            "Annual demand, cloud infrastructure purchasing, and technical requirements remain unknown until qualified.",
+            "Workload scale, current stack, named buying owner, and in-market intent remain unknown until qualified.",
             "Weights are an explicit demo policy. Missing size earns no size points, which does not imply a small customer.",
         ],
     }
@@ -151,11 +151,11 @@ def score_criteria(row):
         size.update(score=12 if row['employees_min'] >= 100 else 6, provenance='observed', reason=f"Company structured metadata reports at least {row['employees_min']} employees. The demo gives a conservative 12/20 size contribution for a sourced 100+ employee organization (6 below 100). This is a headcount proxy, not annual software throughput, telemetry volume, or license revenue.")
     # Application credit is deliberately capped when a source only shows adjacent products/processes.
     app_score = {'direct': 34, 'adjacent': 26, 'process': 18, 'weak': 8, 'none': 0}[row['application_level']]
-    app = {"key": "application", "label": "Technical & use case fit", "score": app_score, "max": 40, "reason": row['hypothesis'], "provenance": "inferred" if app_score else "unknown"}
+    app = {"key": "application", "label": "Technical & stack fit", "score": app_score, "max": 40, "reason": row['hypothesis'], "provenance": "inferred" if app_score else "unknown"}
     sector_level = row['sector_level']
-    sector = {"key": "sector", "label": "Domain & automation maturity", "score": {'observed':20, 'inferred':10, 'unknown':0}[sector_level], "max":20, "reason": "The quoted source names the target sector." if sector_level == 'observed' else ("Sector is a research hypothesis; the excerpt does not establish it directly." if sector_level == 'inferred' else "The target sector is not evidenced in this capture."), "provenance":sector_level}
+    sector = {"key": "sector", "label": "In-market intent", "score": {'observed':20, 'inferred':10, 'unknown':0}[sector_level], "max":20, "reason": "Captured replay treats named industry presence as a conservative proxy; live research requires a job post, RFP, or timed program for this criterion." if sector_level == 'observed' else ("Industry fit is a research hypothesis, not a dated buying signal." if sector_level == 'inferred' else "No in-market intent signal is evidenced in this capture."), "provenance":sector_level}
     pos_level = row['position_level']
-    position = {"key":"position", "label":"Platform ownership & buying role", "score":{'observed':18, 'inferred':10, 'unknown':0}[pos_level], "max":20, "reason": f"{row['position']}. " + ("Role is supported by the company description; this platform's purchasing owner remains unconfirmed." if pos_level == 'observed' else "Treat the buyer relationship as a hypothesis until confirmed."), "provenance":pos_level}
+    position = {"key":"position", "label":"Buying committee & commercial motion", "score":{'observed':18, 'inferred':10, 'unknown':0}[pos_level], "max":20, "reason": f"{row['position']}. " + ("Company-level operating role is supported by the description; a named software buying owner remains unconfirmed." if pos_level == 'observed' else "Treat the buying committee and commercial motion as a hypothesis until confirmed."), "provenance":pos_level}
     return [size, app, sector, position]
 
 
@@ -182,14 +182,14 @@ def build_lead(row, product_id):
         "coverage":round(sum(c['provenance']=='observed' for c in criteria)/len(criteria)*100),
         "coverage_description":"Share of the four ranking criteria directly supported by a matching source excerpt. This is not model confidence.",
         "gate":gate, "criteria":criteria, "evidence":evidence,
-        "gaps":["Telemetry event volume and plant scale", "Software platform purchase owner and IT/OT decision process", "Deployment topology, latency and protocol requirements"],
-        "next_action": "Find an application-specific source before pursuing this lead." if row.get('hold') else "Confirm the application, telemetry throughput and software purchase owner in a technical discovery call.",
+        "gaps":["Telemetry event volume and plant scale", "Current stack or incumbent platform", "Named OT/IT buying owner and commercial motion", "In-market intent (job post, RFP, or digital program)"],
+        "next_action": "Find an application-specific source before pursuing this lead." if row.get('hold') else "Confirm the application, current stack, named buying owner, and whether a job, RFP, or program shows they are in-market.",
         "review":None, "synthetic":False,
     }
 
 
 def synthetic_lead():
-    row = dict(id="illustrative-cloud",name="Illustrative Cloud-Only request",country="Synthetic test case",sector="Illustrative automotive application",position="Illustrative injection molder",application="Cloud-based sensor dashboard",application_level="direct",sector_level="inferred",position_level="inferred",hypothesis="An illustrative request requires cloud_only. DataStream Pro is strictly on-premises edge, so a commercial ranking must never approve it.")
+    row = dict(id="illustrative-cloud",name="Illustrative Cloud-Only request",country="Synthetic test case",sector="Illustrative automotive application",position="Illustrative plant operator",application="Cloud-based sensor dashboard",application_level="direct",sector_level="inferred",position_level="inferred",hypothesis="An illustrative request requires cloud_only. DataStream Pro is strictly on-premises edge, so a commercial ranking must never approve it.")
     criteria=score_criteria(row)
     return {**{k:row[k] for k in ('id','name','country','sector','position','application')},"domain":"Synthetic policy example", "summary":row['hypothesis'],"score":sum(c['score'] for c in criteria),"raw_score":sum(c['score'] for c in criteria),"coverage":0,"coverage_description":"Synthetic policy example; no company evidence.","gate":technical_gate('DS-PRO',{'deployment':'cloud_only'}),"criteria":criteria,"evidence":[dict(id='synthetic-requirement',claim="Illustrative customer requirement: cloud_only deployment. This is not a statement about any real company.",provenance='inferred',quote='',url='',title='Authored policy test',captured_at=None,source_type='synthetic_test'),dict(id='synthetic-product',claim='DataStream Pro is listed as On-Premises Edge Only.',provenance='observed',quote='Deployment: Strictly On-Premises Edge (requires local hardware deployment, no public cloud dependency).',url=product('DS-PRO')['document_url']+'#page=2',title='Fictional product spec sheet, page 2',captured_at=None,source_type='product_pdf')],"gaps":["A different cloud gateway would need evaluation"],"next_action":"Reject this product match. Do not compensate for a hard mismatch with commercial score.","review":None,"synthetic":True}
 

@@ -3,20 +3,22 @@ import json
 with open('backend/data/companies.json', 'r') as f:
     data = json.load(f)
 
-# Update batteries-de
-for company in data.get('batteries-de', []):
-    company['application'] = "Predictive maintenance"
-    company['hypothesis'] = "assembly systems create a plausible use case for predictive maintenance AI. Deployment constraints and API limits need confirmation."
+hyps = {
+    'assemblies-de': "An operating manufacturing site is CloudScale ICP. Current stack, named OT/IT owner, and in-market intent (jobs, RFP, or program) are not established.",
+    'electronics-dach': "Electronics manufacturing is CloudScale ICP for automated QA. Incumbent stack, named buyer, and in-market intent remain unknown unless the source names them.",
+    'molders-de': "High-volume manufacturing is DataStream ICP. MQTT/OPC UA/Kafka use, on-prem constraints, named OT owner, and intent signals are not in this capture.",
+}
 
-# Update electronics-dach
+for scenario, default_hyp in hyps.items():
+    for company in data.get(scenario, []):
+        if company.get('hold') or company['id'] in ('liebherr', 'quantec'):
+            continue
+        company['hypothesis'] = default_hyp
+
 for company in data.get('electronics-dach', []):
-    company['application'] = "Automated quality assurance"
-    company['hypothesis'] = "An explicitly listed manufacturing process creates a relevant opening for quality assurance AI. API limits and latency requirements remain unknown."
+    if company['id'] == 'quantec':
+        company['application'] = 'Insufficient source evidence'
+        company['hypothesis'] = 'Do not treat the search result as qualified company evidence. Fetch a relevant source before making an application, stack, intent, or buyer claim.'
 
-# Update molders-de
-for company in data.get('molders-de', []):
-    company['application'] = "Edge telemetry"
-    company['hypothesis'] = "Automotive manufacturing is a plausible use case for edge telemetry and high-frequency sensor ingestion. Required protocols and deployment constraints remain unknown."
-    
 with open('backend/data/companies.json', 'w') as f:
     json.dump(data, f, indent=2)

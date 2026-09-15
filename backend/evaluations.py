@@ -49,22 +49,28 @@ def _v2_example():
     chunks = retrieve('CS-AI','predictive maintenance defect detection')
     activity = 'Example Auto deploys robotic assembly lines for vehicles at its operating German production site.'
     capacity = 'Example Auto processes 50000 telemetry events per second at this identified site.'
+    intent = 'Example Auto is hiring an OT data engineer for predictive maintenance at the same German site.'
+    committee = 'The VP of Operations owns platform selection for the German assembly site.'
     facts = [dict(id='F1',dimensions=['application'],kind='activity',claim=activity,source_id='S1',quote=activity,
                   language='en',entity='Example Auto',entity_scope='site'),
              dict(id='F2',dimensions=['size'],kind='workload_scale',claim=capacity,source_id='S1',quote=capacity,
                   language='en',entity='Example Auto',entity_scope='site',
-                  quantity=dict(value=50000,value_text='50000',unit='events/sec'))]
+                  quantity=dict(value=50000,value_text='50000',unit='events/sec')),
+             dict(id='F3',dimensions=['sector'],kind='intent_signal',claim=intent,source_id='S1',quote=intent,
+                  language='en',entity='Example Auto',entity_scope='site'),
+             dict(id='F4',dimensions=['position'],kind='buying_committee',claim=committee,source_id='S1',quote=committee,
+                  language='en',entity='Example Auto',entity_scope='site')]
     row = CandidateEvidence(name='Example Auto',domain='example.com',country='Germany',sector='Automotive',
                             position='Automotive manufacturer',application='Predictive maintenance',hypothesis='Automated lines fit the retrieved product application.',
                             source_ids=['S1'],product_chunk_ids=[chunks[0]['id']],is_competitor=False,
                             geography_match='supported',facts=facts,next_action='Confirm workload scale and qualification requirements.')
     sources = {'S1':dict(id='S1',url='https://example.com/auto',title='Synthetic contract source',
-                         excerpt=activity+' '+capacity,grounded_summary='',source_type='live_public_page',captured_at=None)}
+                         excerpt=activity+' '+capacity+' '+intent+' '+committee,grounded_summary='',source_type='live_public_page',captured_at=None)}
     candidate = validate_candidate(row,scope,chunks,sources)
     assessment = LeadAssessment(candidate_id=candidate['id'],eligible=True,eligibility_reason='Synthetic fixture assumes this entity is eligible.',
                                  fact_reviews=[dict(fact_id=f['id'],status='supported',reason='Injected support verdict for the deterministic contract fixture.') for f in candidate['facts']],
                                  criteria=[dict(key=key,rating=5,reason='Injected maximum anchor rating for deterministic contract coverage.',
-                                                fact_ids=['F2'] if key=='size' else ['F1'],
+                                                fact_ids=[{'size':'F2','application':'F1','sector':'F3','position':'F4'}[key]],
                                                 product_chunk_ids=[chunks[0]['id']] if key=='application' else [])
                                            for key in ('size','application','sector','position')],
                                  summary='Synthetic assessment exercises arithmetic and evidence boundaries.',next_action='Confirm the real commercial opportunity.').model_dump()

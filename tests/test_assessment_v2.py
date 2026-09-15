@@ -12,9 +12,11 @@ from backend.domain import retrieve
 
 
 SCOPE = {'product_id': 'CS-AI'}
-CHUNKS = retrieve('CS-AI', 'assembly bonding applications operating temperature')
+CHUNKS = retrieve('CS-AI', 'predictive maintenance defect detection latency')
 ACTIVITY = 'Example assemblies repeatedly manufactures and bonds assembly packs for electric vehicles in Germany.'
 CAPACITY = 'Our Example assemblies site manufactures 50000 assembly packs annually on its operating production lines.'
+INTENT = 'Example assemblies is hiring an OT data engineer for predictive maintenance at this German site.'
+COMMITTEE = 'The VP of Operations owns platform selection for the German assembly site.'
 
 
 def fixture():
@@ -24,14 +26,20 @@ def fixture():
              dict(id='F2', dimensions=['size'], kind='production_capacity', claim=CAPACITY,
                   source_id='S1', quote=CAPACITY, language='en', entity='Example assemblies',
                   entity_scope='site', quantity=dict(value=50000, value_text='50000',
-                                                    unit='assembly packs/year', approximate=False))]
+                                                    unit='assembly packs/year', approximate=False)),
+             dict(id='F3', dimensions=['sector'], kind='intent_signal', claim=INTENT,
+                  source_id='S1', quote=INTENT, language='en', entity='Example assemblies',
+                  entity_scope='site'),
+             dict(id='F4', dimensions=['position'], kind='buying_committee', claim=COMMITTEE,
+                  source_id='S1', quote=COMMITTEE, language='en', entity='Example assemblies',
+                  entity_scope='site')]
     row = dict(name='Example assemblies', domain='example.com', country='Germany', sector='EV assemblies',
-               position='assembly assembler', application='assembly-pack bonding', hypothesis='assembly pack bonding may fit the retrieved product application.',
+               position='plant operator', application='predictive maintenance', hypothesis='Assembly operations may fit the retrieved predictive-maintenance application.',
                source_ids=['S1'], product_chunk_ids=[CHUNKS[0]['id']], is_competitor=False,
                geography_match='supported', facts=facts, gaps=['Purchase volume still needs qualification.'],
-               next_action='Confirm the material demand and application requirements.')
+               next_action='Confirm the stack, named buying owner and application requirements.')
     source = dict(id='S1', url='https://example.com/assemblies', title='Example assemblies',
-                  excerpt=ACTIVITY + ' ' + CAPACITY, grounded_summary=ACTIVITY,
+                  excerpt=ACTIVITY + ' ' + CAPACITY + ' ' + INTENT + ' ' + COMMITTEE, grounded_summary=ACTIVITY,
                   source_type='live_public_page', captured_at='2026-09-14T10:00:00Z')
     return row, {'S1': source}
 
@@ -44,11 +52,17 @@ def validated(row=None, sources=None, scope=None, chunks=None):
 
 
 def judgment(candidate, ratings=(5, 5, 5, 5)):
+    available = {f['id'] for f in candidate['facts']}
+    def refs(key):
+        preferred = {'size': 'F2', 'application': 'F1', 'sector': 'F3', 'position': 'F4'}[key]
+        if preferred in available:
+            return [preferred]
+        return [next(iter(available))] if available else []
     return LeadAssessment.model_validate(dict(
         candidate_id=candidate['id'], eligible=True, eligibility_reason='The evidenced business is in the research scope.',
         fact_reviews=[dict(fact_id=f['id'], status='supported', reason='The quoted source supports this scoped claim.') for f in candidate['facts']],
         criteria=[dict(key=key, rating=rating, reason='The accepted activity supports this authored rubric judgment.',
-                       fact_ids=['F2'] if key == 'size' else ['F1'],
+                       fact_ids=refs(key),
                        product_chunk_ids=candidate['product_chunk_ids'] if key == 'application' else [])
                   for key, rating in zip(('size', 'application', 'sector', 'position'), ratings)],
         summary='A hypothetical rubric assessment based on public manufacturing evidence.', gaps=[],
@@ -69,18 +83,18 @@ def criterion(lead, key):
 def test_headcount_is_locale_independent_and_keeps_site_scope(language, numeric, word):
     row, sources = fixture()
     quote = f'Example assemblies has approximately {numeric} {word} at the Untertuerkheim site.'
-    row['facts'].append(dict(id='F3', dimensions=['size'], kind='headcount', claim='Approximately 23,000 people work at this site.',
+    row['facts'].append(dict(id='F5', dimensions=['size'], kind='headcount', claim='Approximately 23,000 people work at this site.',
                              source_id='S1', quote=quote, language=language, entity='Untertuerkheim site',
                              entity_scope='site', as_of='2026', quantity=dict(value=23000, value_text=numeric,
                                                                            unit='employees', approximate=True)))
     sources['S1']['excerpt'] += ' ' + quote
     candidate = validated(row, sources)
-    fact = next(f for f in candidate['facts'] if f['id'] == 'F3')
+    fact = next(f for f in candidate['facts'] if f['id'] == 'F5')
     assert fact['quantity']['value'] == 23000 and fact['quantity']['approximate'] is True
     assert fact['entity_scope'] == 'site' and fact['entity'] == 'Untertuerkheim site'
     assert fact['quote'] == quote and fact['language'] == language and fact['as_of'] == '2026'
     assessment = judgment(candidate)
-    assessment['criteria'][0].update(fact_ids=['F3'], rating=3)
+    assessment['criteria'][0].update(fact_ids=['F5'], rating=3)
     lead = assessed(candidate, assessment)
     assert criterion(lead, 'size')['rating'] is None
     assert any('alone does not establish' in issue for issue in lead['validation_issues'])
@@ -96,7 +110,7 @@ def test_quantities_cannot_use_substrings_or_wrong_locale_values(quoted, value_t
                            quantity=dict(value=value, value_text=value_text, unit='employees'))
     sources['S1']['excerpt'] += ' ' + quote
     candidate = validated(row, sources)
-    assert [f['id'] for f in candidate['facts']] == ['F1']
+    assert [f['id'] for f in candidate['facts']] == ['F1', 'F3', 'F4']
     assert candidate['validation_issues']
 
 
@@ -114,9 +128,9 @@ def test_full_rubric_and_fetched_coverage_are_reachable_without_observed_fit():
     assert lead['coverage'] == lead['assessment_completeness'] == 100
     assert lead['score_status'] == 'complete' and lead['scoring_version'] == POLICY_VERSION
     assert all(c['provenance'] == 'inferred' for c in lead['criteria'])
-    # F1 has only an application dimension. Its meaning can still support other business questions.
-    assert criterion(lead, 'sector')['fact_ids'] == ['F1']
-    assert criterion(lead, 'position')['fact_ids'] == ['F1']
+    # Application uses F1; intent and committee have dedicated facts.
+    assert criterion(lead, 'sector')['fact_ids'] == ['F3']
+    assert criterion(lead, 'position')['fact_ids'] == ['F4']
 
 
 def test_unknown_and_supported_negative_have_distinct_points_ranges_and_coverage():
@@ -162,7 +176,7 @@ def test_unverifiable_extraction_is_removed_before_model_assessment(mutation):
     if mutation == 'invented_source': row['facts'][1]['source_id'] = 'invented'
     if mutation == 'duplicate_fact': row['facts'].append(deepcopy(row['facts'][1]))
     candidate = validated(row, sources)
-    assert [f['id'] for f in candidate['facts']] == ['F1']
+    assert [f['id'] for f in candidate['facts']] == ['F1', 'F3', 'F4']
     assert candidate['validation_issues']
 
 
@@ -204,7 +218,7 @@ def test_quote_occurrence_does_not_override_semantic_support_review(text, status
 def test_technical_veto_needs_applicable_requirement_even_when_quote_matches(applicable, expected):
     row, sources = fixture()
     quote = 'Example assemblies requires a max latency of 5 ms for this application.'
-    row['facts'].append(dict(id='F3', dimensions=['technical_requirement'], kind='technical_requirement', claim=quote,
+    row['facts'].append(dict(id='F5', dimensions=['technical_requirement'], kind='technical_requirement', claim=quote,
                              source_id='S1', quote=quote, language='en', entity='Example assemblies', entity_scope='line',
                              quantity=dict(value=5, value_text='5', unit='ms'),
                              requirement=dict(name='max_latency_ms', value='5')))
@@ -218,7 +232,7 @@ def test_technical_veto_needs_applicable_requirement_even_when_quote_matches(app
 
 def test_every_requirement_is_gated_so_later_compatible_value_cannot_hide_mismatch():
     row, sources = fixture()
-    for index, value in enumerate((5, 120), start=3):
+    for index, value in enumerate((5, 120), start=5):
         quote = f'Example assemblies requires max latency at {value} ms for line {index}.'
         row['facts'].append(dict(id=f'F{index}', dimensions=['technical_requirement'], kind='technical_requirement', claim=quote,
                                  source_id='S1', quote=quote, language='en', entity=f'Example assemblies line {index}', entity_scope='line',
@@ -227,7 +241,7 @@ def test_every_requirement_is_gated_so_later_compatible_value_cannot_hide_mismat
         sources['S1']['excerpt'] += ' ' + quote
     candidate = validated(row, sources)
     assessment = judgment(candidate)
-    for review in assessment['fact_reviews'][2:]: review['is_customer_requirement'] = True
+    for review in assessment['fact_reviews'][4:]: review['is_customer_requirement'] = True
     assert assessed(candidate, assessment)['gate']['status'] == 'blocked'
 
 
@@ -249,7 +263,7 @@ def test_invalid_count_or_material_quantity_is_not_accepted(kind, value):
     quote = f'Example assemblies reports {value} units for this identified production activity.'
     row['facts'][1].update(kind=kind, quote=quote, quantity=dict(value=value,value_text=str(value),unit='units'))
     sources['S1']['excerpt'] += ' ' + quote
-    assert [fact['id'] for fact in validated(row,sources)['facts']] == ['F1']
+    assert [fact['id'] for fact in validated(row,sources)['facts']] == ['F1', 'F3', 'F4']
 
 
 def test_sentence_punctuation_does_not_invalidate_original_numeric_value():
@@ -279,6 +293,18 @@ def test_short_company_name_requires_a_complete_source_token(source_name, accept
     result=validated(row,sources)
     assert (result is not None) is accepted
     if accepted: assert result['name']=='ZF'
+
+
+def test_intent_and_committee_ratings_need_dedicated_fact_kinds():
+    candidate = validated()
+    assessment = judgment(candidate)
+    assessment['criteria'][2].update(fact_ids=['F1'], rating=4)
+    assessment['criteria'][3].update(fact_ids=['F1'], rating=4)
+    lead = assessed(candidate, assessment)
+    assert criterion(lead, 'sector')['rating'] is None
+    assert criterion(lead, 'position')['rating'] is None
+    assert any('in-market intent' in issue for issue in lead['validation_issues'])
+    assert any('buying committee' in issue for issue in lead['validation_issues'])
 
 
 @pytest.mark.parametrize('key',['size','application'])

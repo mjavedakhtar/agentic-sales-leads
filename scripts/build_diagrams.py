@@ -42,7 +42,7 @@ add('current-workflow', 'The workflow running today',
     node('assess', 970, 210, 270, 154, 'Assess against rubric', 'Gemini checks fact meaning|Four criterion ratings, 0-5|Reasons, citations, unknowns', 'app'),
     node('calculate', 1275, 210, 270, 154, 'Calculate and gate', 'Code applies fixed weights|Score range; evidence support|Known mismatch blocks', 'app'),
     node('shortlist', 885, 475, 660, 130, 'Saved commercial shortlist', 'Rank by score lower bound, with technical blocks last|Coverage and completeness remain separate from fit|Original evidence, scores and later decisions are retained', 'data'),
-    node('buyer', 55, 475, 660, 130, 'Optional: check buying responsibility', 'Assess the same saved evidence before seeking anything new|At most one targeted search, then reassess its evidence|Purchasing, software use and specification are separate', 'app'),
+    node('buyer', 55, 475, 660, 130, 'Optional: check buying responsibility', 'Assess the same saved evidence before seeking anything new|At most one targeted search, then reassess its evidence|Licensing, platform use and specification are separate', 'app'),
     node('comparison', 55, 670, 395, 112, 'Buyer comparison', 'Original evidence / new evidence|Commercial scores stay unchanged', 'data'),
     node('review', 690, 670, 395, 112, 'Human qualification', 'Approve, reject or needs research|A separate review thread per lead', 'human'),
     node('persist', 1150, 670, 395, 112, 'Persist the decision', 'Review + note in SQLite|Only approved leads enter pipeline', 'data')], [

@@ -25,7 +25,7 @@ from .workflows import add_usage, event
 MAX_MODEL_ATTEMPTS = 4
 MAX_SEARCH_PASSES = 1
 MAX_EXECUTION_SECONDS = 360
-POLICY_VERSION = 'buyer-qualification-v1'
+POLICY_VERSION = 'buyer-qualification-v2'
 
 
 class BuyerState(TypedDict, total=False):

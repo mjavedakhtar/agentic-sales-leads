@@ -6,7 +6,7 @@ flowchart LR
     assess["Assess against rubric<br/>Gemini checks fact meaning<br/>Four criterion ratings, 0-5<br/>Reasons, citations, unknowns"]
     calculate["Calculate and gate<br/>Code applies fixed weights<br/>Score range; evidence support<br/>Known mismatch blocks"]
     shortlist["Saved commercial shortlist<br/>Rank by score lower bound, with technical blocks last<br/>Coverage and completeness remain separate from fit<br/>Original evidence, scores and later decisions are retained"]
-    buyer["Optional: check buying responsibility<br/>Assess the same saved evidence before seeking anything new<br/>At most one targeted search, then reassess its evidence<br/>Purchasing, material use and specification are separate"]
+    buyer["Optional: check buying responsibility<br/>Assess the same saved evidence before seeking anything new<br/>At most one targeted search, then reassess its evidence<br/>Licensing, platform use and specification are separate"]
     comparison["Buyer comparison<br/>Original evidence / new evidence<br/>Commercial scores stay unchanged"]
     review["Human qualification<br/>Approve, reject or needs research<br/>A separate review thread per lead"]
     persist["Persist the decision<br/>Review + note in SQLite<br/>Only approved leads enter pipeline"]

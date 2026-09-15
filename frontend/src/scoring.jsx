@@ -51,6 +51,6 @@ export function ScorePanel({lead,mode,onEvidence}){
       </div>;
     })}</div>
     <div className="evidence-separation"><div><Icon name="shield" size={16}/><strong>Evidence coverage</strong><b>{lead.coverage??0}%</b></div><p>{coverageDescription(lead)}</p>{v2&&<div className="assessment-completeness"><span>Assessment completeness</span><strong>{assessed}/{count} criteria · {completeness}%</strong></div>}</div>
-    {v2&&<p className="rubric-policy-note">Demo weights: 20 / 40 / 20 / 20. The LLM judges each criterion; code applies the weights. Sales calibration is still needed.</p>}
+    {v2&&<p className="rubric-policy-note">Demo weights: 20 / 40 / 20 / 20 (workload, stack fit, in-market intent, buying committee). The LLM judges each criterion; code applies the weights. Sales calibration is still needed.</p>}
   </section>;
 }

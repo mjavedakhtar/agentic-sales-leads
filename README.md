@@ -9,7 +9,7 @@ This platform automates technical market research using **LangGraph** orchestrat
 ## 📸 Platform Interface Tour
 
 ### 1. Market Discovery & Research Briefs
-Enter custom market research prompts or launch curated research plays. Configure target products, regional bounds, and supply-chain roles before execution.
+Enter custom market research prompts or launch curated research plays. Configure target products, regional bounds, account types, and buying-committee roles before execution.
 ![Market Discovery](docs/images/01-discover-page.png)
 
 ### 2. Opportunity Shortlist & Fit Scoring
@@ -42,10 +42,12 @@ Track approved leads across pipeline stages (Qualified, Contacted, In Discovery,
 
 - **Evidence-Led Research**: Every claim is backed by extracted quotes and traceable public URLs—no hallucinated company metrics.
 - **Enterprise Software Scoring Engine**: Evaluates four balanced dimensions (100 pts total):
-  1. **Workload Scale (20 pts)**: Event throughput, edge device volume, telemetry ingest demand.
-  2. **Technical & Use Case Fit (40 pts)**: Core operational fit (predictive maintenance, defect detection, QA).
-  3. **Domain & Automation Maturity (20 pts)**: Industry sector alignment and existing sensor/automation adoption.
-  4. **Platform Ownership & Buying Authority (20 pts)**: Direct software procurement authority vs. turnkey customer delivery.
+  1. **Workload Scale (20 pts)**: Quantified telemetry, sensor counts, or production-line throughput—not headcount.
+  2. **Technical & Stack Fit (40 pts)**: Operational use case plus deployment topology or named incumbent (PI, AWS IoT, MQTT).
+  3. **In-market Intent (20 pts)**: Job posts, RFPs/tenders, digital-factory programs, or trade-show signals. Industry membership is not intent.
+  4. **Buying Committee & Commercial Motion (20 pts)**: Named OT/IT/ops roles, and whether they license the platform, buy a turnkey SI package, or inherit a customer-mandated stack.
+- **ICP then intent**: Live search hunts operating plants *and* jobs, RFPs, incumbents, and named buyers. Fit is not treated as buying now.
+- **Software commercial motions**: Platform user, specifier, license purchaser, turnkey-SI buyer, and customer-mandated stack are qualified separately from the fit score.
 - **Deterministic Technical Gates**: Hard constraint enforcement (e.g. latency guarantees, on-premises isolation) that models cannot bypass.
 - **Stateful Human-in-the-Loop Orchestration**: Built with LangGraph. Research pauses for human review and scope confirmation.
 - **Zero-Trust Knowledge Boundary**: Public web extracts are treated as untrusted hypotheses; internal technical datasheets form the verified ground truth.
